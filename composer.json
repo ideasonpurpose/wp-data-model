@@ -5,7 +5,6 @@
   "keywords": [
     "wordpress",
     "plugin",
-    "init",
     "Ideas On Purpose"
   ],
   "authors": [
@@ -18,7 +17,7 @@
   "require": {},
   "autoload": {
     "psr-4": {
-      "ideasonpurpose\\WP\\": "src"
+      "Ideasonpurpose\\WP\\": "src"
     }
   }
 }
