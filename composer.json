@@ -1,0 +1,24 @@
+{
+  "name": "ideasonpurpose/wp-data-model",
+  "description": "Base package for building data models for WordPress sites",
+  "license": "MIT",
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "init",
+    "Ideas On Purpose"
+  ],
+  "authors": [
+    {
+      "name": "Joe Maller",
+      "email": "joe@ideasonpurpose.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "ideasonpurpose\\WP\\": "src"
+    }
+  }
+}
