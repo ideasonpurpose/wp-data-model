@@ -1,6 +1,6 @@
 {
   "name": "wp-data-model",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "description": "Base package for building data models for WordPress sites.",
   "keywords": [],
   "homepage": "https://github.com/ideasonpurpose/wp-data-model#readme",
