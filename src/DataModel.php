@@ -54,23 +54,25 @@ abstract class DataModel
         $this->plugin_info = get_plugin_data($this->childFilePath);
         $this->plugin_id = plugin_basename($this->childFilePath);
         $this->plugin_slug = dirname($this->plugin_id);
-
         $this->transient = "ideasonpurpose-update-check_{$this->plugin_id}";
     }
 
     public function updateCheck()
     {
         $this->getInfo();
-        $response = get_transient($this->transient);
+        $this->response = get_transient($this->transient);
 
         /**
          * Disable transients when WP_DEBUG is true
          */
         if (WP_DEBUG === true) {
-            $response = false;
+            $this->response = false;
         }
 
-        if ($response === false) {
+        /**
+         * Query the lambda to see if we've got an update
+         */
+        if ($this->response === false) {
             $remote = wp_remote_post('https://1q32dgotuh.execute-api.us-east-2.amazonaws.com/production', [
                 'body' => json_encode([
                     'version' => $this->plugin_info['Version'],
@@ -87,39 +89,62 @@ abstract class DataModel
 
             if (is_wp_error($response)) {
                 $error_message = $response->get_error_message();
-                echo "Something went wrong: $error_message";
+                error_log("Something went wrong: $error_message");
+            } elseif ($response->statusCode != 200) {
+                error_log("Something went wrong: {$response->body}");
             } else {
                 /**
                  * WordPress expects $response to be an object with all internal keys
                  * being arrays.
                  * Quick solution: json_decode to an associative array, then cast it
-                 * to an object later so all top-level keys become properties.
+                 * to an object so all top-level keys become properties.
                  */
-                $response = json_decode($remote['body'], true);
+                $this->response = (object) json_decode($remote['body'], true);
 
                 set_transient($this->transient, $response, 24 * HOUR_IN_SECONDS);
             }
         }
-        return (object) $response;
     }
 
+    /**
+     * Updates the WordPress transient with a new response
+     * containing update info from our AWS Lambda endpoint
+     *
+     * Called from the `pre_set_site_transient_update_plugins` filter
+     *
+     * @param object $transient
+     * @param string $action
+     * @return void $transient, with updated response
+     */
     public function update($transient, $action)
     {
         $this->getInfo();
+        $this->updateCheck();
 
-        $response = $this->updateCheck();
-
-        if ((array) $response) {
-            $transient->response[$this->plugin_id] = (object) $response;
+        /**
+         * Casting the Object to an array checks that it's non-empty since [] is false
+         */
+        if ((array) $this->response) {
+            $transient->response[$this->plugin_id] = $this->response;
         }
 
         return $transient;
     }
 
+    /**
+     * Injects details about the plugin into `plugin_information` requests to the plugin_api
+     *
+     * Called from the `plugins_api` filter
+     *
+     * @param  boolean $result
+     * @param  string $action
+     * @param  object $args
+     * @return object A response object containing information about the plugin
+     */
     public function details($result, $action, $args)
     {
         $this->getInfo();
-        $this->response = $this->updateCheck();
+        $this->updateCheck();
 
         if ($action !== 'plugin_information') {
             return $result;

@@ -7,7 +7,6 @@ abstract class CPT
      * Override `define` and define Taxonomies and Custom Post Types in the child class
      */
 
-
     abstract protected function define();
 
     protected $menu_index;
@@ -44,7 +43,7 @@ abstract class CPT
             echo "<select name='$slug' id='$slug' class='postform'>";
             echo "<option value=''>All {$tax->label}</option>";
             echo implode("\n", $terms);
-            echo "</select>";
+            echo '</select>';
         }
     }
 
