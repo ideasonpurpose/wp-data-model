@@ -1,0 +1,47 @@
+{
+  "name": "wp-data-model",
+  "version": "1.0.0",
+  "description": "Base package for building data models for WordPress sites.",
+  "keywords": [],
+  "homepage": "https://github.com/ideasonpurpose/wp-data-model#readme",
+  "bugs": {
+    "url": "https://github.com/ideasonpurpose/wp-data-model/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ideasonpurpose/wp-data-model.git"
+  },
+  "license": "ISC",
+  "author": "Ideas On Purpose (https://www.ideasonpurpose.com)",
+  "contributors": [
+    "Joe Maller <joe@ideasonpurpose.com>"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": "*.php",
+        "options": {
+          "printWidth": 120,
+          "singleQuote": true,
+          "tabWidth": 4,
+          "trailingCommaPHP": true
+        }
+      }
+    ]
+  },
+  "dependencies": {
+    "@prettier/plugin-php": "^0.14.0",
+    "prettier": "^2.0.5",
+    "version-everything": "^0.6.3"
+  },
+  "version-everything": {
+    "files": [
+      "README.md",
+      "composer.json"
+    ]
+  }
+}
