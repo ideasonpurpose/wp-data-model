@@ -90,10 +90,6 @@ abstract class DataModel
                 'data_format' => 'body',
             ]);
 
-            \Kint::$mode_default = \Kint::MODE_CLI;
-            error_log(@d($this->response, $remote));
-            \Kint::$mode_default = \Kint::MODE_RICH;
-
             if (is_wp_error($remote)) {
                 error_log('Something went wrong: ' . $remote->get_error_message());
             } elseif ($remote['response']['code'] != 200) {
