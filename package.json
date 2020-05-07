@@ -18,7 +18,10 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lambda:wp": "docker-compose run -e FUNCTION=wp-update-handler lambda",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "version": "version-everything && git add -u"
   },
   "prettier": {
     "overrides": [
@@ -35,6 +38,8 @@
   },
   "dependencies": {
     "@prettier/plugin-php": "^0.14.0",
+    "aws-sdk": "^2.671.0",
+    "jest": "^26.0.1",
     "prettier": "^2.0.5",
     "version-everything": "^0.6.3"
   },

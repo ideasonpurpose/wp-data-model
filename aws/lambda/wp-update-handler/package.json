@@ -1,0 +1,6 @@
+{
+  "name": "wp-update-handler",
+  "dependencies": {
+    "semver": "^7.3.2"
+  }
+}
