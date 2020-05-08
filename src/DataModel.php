@@ -88,10 +88,9 @@ abstract class DataModel
             ]);
 
             if (is_wp_error($remote)) {
-                $error_message = $remote->get_error_message();
-                error_log("Something went wrong: $error_message");
-            } elseif ($remote->statusCode != 200) {
-                error_log("Something went wrong: {$remote->body}");
+                error_log('Something went wrong: ' . $remote->get_error_message());
+            } elseif ($remote['response']['code'] != 200) {
+                error_log("Something went wrong: {$remote['body']}");
             } else {
                 /**
                  * WordPress expects $response to be an object with all internal keys
@@ -123,8 +122,9 @@ abstract class DataModel
 
         /**
          * Casting the Object to an array checks that it's non-empty since [] is false
+         * Check that it isn't just false, or casting to array yields `[false]`
          */
-        if ((array) $this->response) {
+        if ($this->response && (array) $this->response) {
             $transient->response[$this->plugin_id] = $this->response;
         }
 
