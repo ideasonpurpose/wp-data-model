@@ -54,16 +54,13 @@ abstract class DataModel
         $this->plugin_info = get_plugin_data($this->childFilePath);
         $this->plugin_id = plugin_basename($this->childFilePath);
         $this->plugin_slug = dirname($this->plugin_id);
-
-        $this->updateTransient = "ideasonpurpose-update_{$this->plugin_id}";
-        $this->aboutTransient = "ideasonpurpose-about_{$this->plugin_id}";
-        $this->changelogTransient = "ideasonpurpose-changelog_{$this->plugin_id}";
+        $this->transient = "ideasonpurpose-update-check_{$this->plugin_id}";
     }
 
     public function updateCheck()
     {
         $this->getInfo();
-        $this->response = get_transient($this->updateTransient);
+        $this->response = get_transient($this->transient);
 
         /**
          * Disable transients when WP_DEBUG is true
@@ -91,78 +88,24 @@ abstract class DataModel
             ]);
 
             if (is_wp_error($remote)) {
-                error_log('Something went wrong: ' . $remote->get_error_message());
-            } elseif ($remote['response']['code'] != 200) {
-                error_log('Something went wrong: ' . $remote->body);
+                $error_message = $remote->get_error_message();
+                error_log("Something went wrong: $error_message");
+            } elseif ($remote->statusCode != 200) {
+                error_log("Something went wrong: {$remote->body}");
             } else {
                 /**
                  * WordPress expects $response to be an object with all internal keys
                  * being arrays.
                  * Quick solution: json_decode to an associative array, then cast it
                  * to an object so all top-level keys become properties.
-                 *
-                 * See wp-admin/includes/plugin-install.php#201
-                 * https://github.com/WordPress/WordPress/blob/7ded6c2d2ab8fbda8519d877d070b97f940ae74e/wp-admin/includes/plugin-install.php#L200-L201
                  */
                 $this->response = (object) json_decode($remote['body'], true);
 
-                set_transient($this->updateTransient, $this->response, 24 * HOUR_IN_SECONDS);
+                set_transient($this->transient, $this->response, 24 * HOUR_IN_SECONDS);
             }
         }
     }
 
-    /**
-     * Get the contents of the HTML fragment in ${plugin_id}/changelog.html
-     */
-    public function fetchDetailPages()
-    {
-        $this->getInfo();
-        $aboutUrl = sprintf(
-            'https://ideasonpurpose-wp-updates.s3.us-east-2.amazonaws.com/%s/about.html',
-            $this->plugin_slug
-        );
-        $changelogUrl = sprintf(
-            'https://ideasonpurpose-wp-updates.s3.us-east-2.amazonaws.com/%s/changelog.html',
-            $this->plugin_slug
-        );
-
-        $about = get_transient($this->aboutTransient);
-        $changelog = get_transient($this->changelogTransient);
-
-        $sections = [
-            'About' => $about,
-            'Changelog' => $changelog,
-        ];
-
-        /**
-         * Disable transients when WP_DEBUG is true
-         */
-        if (WP_DEBUG === true) {
-            $about = false;
-            $changelog = false;
-        }
-
-        if ($about === false) {
-            $remote = wp_remote_get($aboutUrl);
-            $body = wp_remote_retrieve_body($remote);
-
-            if (!is_wp_error($remote)) {
-                $sections['About'] = $body;
-                set_transient($this->aboutTransient, $body, 24 * HOUR_IN_SECONDS);
-            }
-        }
-
-        if ($changelog === false) {
-            $remote = wp_remote_get($changelogUrl);
-            $body = wp_remote_retrieve_body($remote);
-
-            if (!is_wp_error($remote)) {
-                $sections['Changelog'] = $body;
-                set_transient($this->changelogTransient, $body, 24 * HOUR_IN_SECONDS);
-            }
-        }
-        return $sections;
-    }
     /**
      * Updates the WordPress transient with a new response
      * containing update info from our AWS Lambda endpoint
@@ -203,7 +146,7 @@ abstract class DataModel
         $this->getInfo();
         $this->updateCheck();
 
-        if ($action !== 'plugin_information' || $args->slug !== $this->plugin_slug) {
+        if ($action !== 'plugin_information') {
             return $result;
         }
 
@@ -219,9 +162,11 @@ abstract class DataModel
         $response->last_updated = $this->response->last_modified;
         $response->download_link = $this->response->package;
 
-        $this->fetchDetailPages();
-
-        $response->sections = $this->fetchDetailPages();
+        $response->sections = [
+            'description' => $this->plugin_info['Description'],
+            'changelog' => file_get_contents(realpath(dirname($this->childFilePath) . '/CHANGELOG.html')),
+            'About' => 'About Page',
+        ];
 
         return $response;
     }
