@@ -20,10 +20,16 @@ abstract class DataModel
         $this->childFilePath = $childRef->getFileName();
 
         /**
-         * To be sure any init hooks defined in the plugin are run correctly, the
-         * `register` method is called from the ealier `plugins_loaded` hook.
+         * The `register` action needs to be called as early as possible from the `init` hook.
+         * Setting this to 0 (highest priority) should slot it in just after WP core's
+         * `create_initial_post_types` and `create_initial_taxonomies` actions. If register
+         * is called before `init:0`, any `register_taxonomy_for_post_type` or
+         * `unregister_taxonomy_for_post_type` actions will have no effect.
+         *
+         * @link https://developer.wordpress.org/reference/functions/register_taxonomy_for_object_type/
+         * @link https://developer.wordpress.org/reference/functions/unregister_taxonomy_for_object_type/
          */
-        add_action('plugins_loaded', [$this, 'register']);
+        add_action('init', [$this, 'register'], 0);
 
         add_filter('pre_set_site_transient_update_plugins', [$this, 'update'], 10, 2);
         add_filter('plugins_api', [$this, 'details'], 10, 3);
