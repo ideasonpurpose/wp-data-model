@@ -152,7 +152,7 @@ abstract class DataModel
         $this->getInfo();
         $this->updateCheck();
 
-        if ($action !== 'plugin_information') {
+        if ($action !== 'plugin_information' || $this->response === false ) {
             return $result;
         }
 
