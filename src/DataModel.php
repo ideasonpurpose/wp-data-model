@@ -1,6 +1,6 @@
 <?php
 
-namespace Ideasonpurpose\WP;
+namespace IdeasOnPurpose\WP;
 
 abstract class DataModel
 {
@@ -33,8 +33,6 @@ abstract class DataModel
 
         add_filter('pre_set_site_transient_update_plugins', [$this, 'update'], 10, 2);
         add_filter('plugins_api', [$this, 'details'], 10, 3);
-
-        add_action('admin_enqueue_scripts', [$this, 'adminStyles'], 100);
 
         register_activation_hook($this->childFilePath, [$this, 'activate']);
     }
@@ -152,7 +150,7 @@ abstract class DataModel
         $this->getInfo();
         $this->updateCheck();
 
-        if ($action !== 'plugin_information' || $this->response === false ) {
+        if ($action !== 'plugin_information' || $this->response === false) {
             return $result;
         }
 
@@ -168,20 +166,9 @@ abstract class DataModel
         $response->last_updated = $this->response->last_modified;
         $response->download_link = $this->response->package;
 
-        $response->sections = [
-            'description' => $this->plugin_info['Description'],
-            'changelog' => file_get_contents(realpath(dirname($this->childFilePath) . '/CHANGELOG.html')),
-            'About' => 'About Page',
-        ];
+        $response->sections = $this->response->sections;
+        $response->sections['description'] = $this->plugin_info['Description'];
 
         return $response;
-    }
-
-    /**
-     * Workaround for auto-changelog H2 tags being styled as "clear: both" by WP
-     */
-    public function adminStyles()
-    {
-        wp_add_inline_style('wp-admin', '.plugin-install-php .section h2 { clear: none }');
     }
 }
