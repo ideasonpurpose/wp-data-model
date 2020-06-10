@@ -1,4 +1,3 @@
-const util = require("util");
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3({ apiVersion: "2006-03-01", signatureVersion: "v4" });
 
@@ -71,6 +70,18 @@ exports.handler = async (event) => {
   const { slug, plugin, version: currentVersion } = JSON.parse(event.body);
   const params = { ...defaultParams, Prefix: slug };
 
+  const pages = ["changelog", "about"];
+  const sections = {};
+  pages.forEach(async (page) => {
+    const content = await s3
+      .getObject({ Bucket, Key: `${slug}/${page}.html` })
+      .promise()
+      .catch((err) => console.log(page, err));
+    if (content) {
+      sections[page] = content.Body.toString();
+    }
+  });
+
   if (!slug || !plugin) {
     response.statusCode = 500;
     response.body = "A plugin or theme name is required.";
@@ -101,6 +112,7 @@ exports.handler = async (event) => {
             high: `${awsUrl}/${slug}/${bannerFile}`,
           },
           compatibility: {},
+          sections,
         });
       }
     }
