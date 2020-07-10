@@ -150,7 +150,10 @@ abstract class DataModel
         $this->getInfo();
         $this->updateCheck();
 
-        if ($action !== 'plugin_information' || $this->response === false) {
+        /**
+         *  Keeping this conditional after `updateCheck` so we can potentially "warm" the lambda
+         */
+        if ($args->slug !== $this->plugin_slug || $action !== 'plugin_information' || $this->response === false) {
             return $result;
         }
 
