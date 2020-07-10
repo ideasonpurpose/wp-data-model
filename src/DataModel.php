@@ -87,7 +87,7 @@ abstract class DataModel
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ],
-                'timeout' => 10,
+                'timeout' => 20,
                 'data_format' => 'body',
             ]);
 
@@ -156,6 +156,15 @@ abstract class DataModel
         if ($args->slug !== $this->plugin_slug || $action !== 'plugin_information' || $this->response === false) {
             return $result;
         }
+
+        /**
+         * TODO: Update errors
+         * I suspect the Lambda is taking to long and WordPress is timing out leaving us
+         * with either `false` or an empty `$this->response` object.
+         *
+         * 1. [Done] Doubled the timeout to 20 seconds.
+         * 2. Return an "Update Check Failed, Try Again" message
+         */
 
         $response = new \StdClass();
         $response->slug = $this->plugin_slug;
