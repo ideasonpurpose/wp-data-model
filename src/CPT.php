@@ -1,5 +1,5 @@
 <?php
-namespace Ideasonpurpose\WP;
+namespace IdeasOnPurpose\WP;
 
 abstract class CPT
 {

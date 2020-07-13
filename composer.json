@@ -17,7 +17,7 @@
   "require": {},
   "autoload": {
     "psr-4": {
-      "Ideasonpurpose\\WP\\": "src"
+      "IdeasOnPurpose\\WP\\": "src"
     }
   },
   "version": "0.2.6"
