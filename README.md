@@ -1,26 +1,17 @@
 # wp-data-model
 
+#### Version 0.1.0
+
 Base package for building data models for WordPress sites.
 
 ## AWS Lambda
 
-This also contains the lambda function which handles update requests from the WordPress Admin Plugins page.
+The **aws** directory contains the lambda function which handles update requests from the WordPress Admin Plugins page.
 
-## Initialize a new data model plugin
+## GitHub Actions
 
-TODO: Script this
+The publish-to-aws GitHub Action will build the plugin and push the artifact to our S3 updates bucket. The project needs to define two GitHub Secrets access AWS, those names are found in the `env` section at the top fo the file.
 
-1. Copy these:
+## Example data-model Plugin
 
-   - .github/workflows
-   - assets
-   - .gitignore
-   - composer.json
-   - docker-compose
-   - main.php
-   - package.json
-   - README.md
-
-2. Create these:
-   - lib/CPT
-   - lib/Taxonomy
+To start a new data-model plugin, copy the **example** directory. Create new CPTs and Taxonomies in the **lib** directory. Call them from **main.php**.

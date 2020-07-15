@@ -1,0 +1,55 @@
+{
+  "name": "njhi-data-model",
+  "version": "0.2.10",
+  "description": "Custom Post Types and Taxonomies for the NJHI website.",
+  "homepage": "https://github.com/ideasonpurpose/njhi-data-model-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/ideasonpurpose/njhi-data-model-plugin/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ideasonpurpose/njhi-data-model-plugin.git"
+  },
+  "license": "ISC",
+  "author": "Joe Maller <joe@joemaller.com> (http://www.joemaller.com)",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "composer": "npm run composer:install",
+    "composer:install": "docker-compose run --rm composer",
+    "composer:require": "docker-compose run --rm composer require",
+    "composer:update": "docker-compose run --rm composer update",
+    "version": "version-everything && auto-changelog && git add -u"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": "*.php",
+        "options": {
+          "printWidth": 120,
+          "singleQuote": true,
+          "tabWidth": 4,
+          "trailingCommaPHP": true
+        }
+      }
+    ]
+  },
+  "dependencies": {
+    "@prettier/plugin-php": "^0.14.2",
+    "auto-changelog": "^2.2.0",
+    "prettier": "^2.0.5",
+    "version-everything": "^0.6.3"
+  },
+  "auto-changelog": {
+    "package": true,
+    "commitLimit": 7
+  },
+  "version-everything": {
+    "files": [
+      "README.md",
+      "composer.json",
+      "main.php"
+    ]
+  }
+}

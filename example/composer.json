@@ -1,0 +1,22 @@
+{
+  "name": "ideasonpurpose/example-data-model",
+  "description": "Custom Post Types and Taxonomies for the Example website",
+  "license": "proprietary",
+  "autoload": {
+    "psr-4": {
+      "IdeasOnPurpose\\": [
+        "lib"
+      ]
+    }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/ideasonpurpose/wp-data-model"
+    }
+  ],
+  "require": {
+    "ideasonpurpose/wp-data-model": "^0.2.6"
+  },
+  "version": "0.1.0"
+}

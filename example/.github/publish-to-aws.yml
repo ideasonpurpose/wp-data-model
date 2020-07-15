@@ -1,0 +1,43 @@
+name: Push Update to AWS
+
+on:
+  push:
+    tags: ["v*"]
+
+env:
+  S3_URI: s3://ideasonpurpose-wp-updates
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build, bundle and deploy to AWS
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up REPO and TAG environment vars
+        run: |
+          echo  ::set-env name=REPO::${GITHUB_REPOSITORY#*/}
+          echo  ::set-env name=TAG::${GITHUB_REF#refs/tags/v}
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Create Zip Archive
+        run: |
+          cd ../
+          rm -rf ${REPO}.zip
+          zip -r ${REPO}.zip ${REPO} -i ${REPO}/main.php ${REPO}/lib/\* ${REPO}/vendor/\* ${REPO}/readme.txt
+
+      - name: Render README to HTML
+        run: |
+          npx marked -o assets/about.html README.md
+          npx marked -o assets/changelog.html CHANGELOG.md
+
+      - name: Send artifacts to S3
+        run: |
+          aws s3 sync assets $S3_URI/${REPO}
+          aws s3 cp ../${REPO}.zip $S3_URI/${REPO}.zip
+          aws s3 cp $S3_URI/${REPO}.zip $S3_URI/${REPO}_${TAG}.zip
