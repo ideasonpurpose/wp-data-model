@@ -36,10 +36,10 @@
       }
     ]
   },
-  "dependencies": {
-    "@prettier/plugin-php": "^0.14.0",
-    "aws-sdk": "^2.671.0",
-    "jest": "^26.0.1",
+  "devDependencies": {
+    "@prettier/plugin-php": "^0.14.2",
+    "aws-sdk": "^2.713.0",
+    "jest": "^26.1.0",
     "prettier": "^2.0.5",
     "version-everything": "^0.6.3"
   },
