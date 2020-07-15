@@ -35,11 +35,17 @@ abstract class DataModel
         add_filter('plugins_api', [$this, 'details'], 10, 3);
 
         register_activation_hook($this->childFilePath, [$this, 'activate']);
+        register_deactivation_hook($this->childFilePath, [$this, 'deactivate']);
     }
 
     public function activate()
     {
         $this->register();
+        flush_rewrite_rules();
+    }
+
+    public function deactivate()
+    {
         flush_rewrite_rules();
     }
 
@@ -104,7 +110,7 @@ abstract class DataModel
                  */
                 $this->response = (object) json_decode($remote['body'], true);
 
-                set_transient($this->transient, $this->response, 24 * HOUR_IN_SECONDS);
+                set_transient($this->transient, $this->response, 4 * HOUR_IN_SECONDS);
             }
         }
     }
