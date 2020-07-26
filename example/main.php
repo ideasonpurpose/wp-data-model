@@ -13,7 +13,7 @@
  * License URI:       TBD
  */
 
-namespace Ideasonpurpose;
+namespace IdeasOnPurpose;
 
 require __DIR__ . '/vendor/autoload.php';
 
