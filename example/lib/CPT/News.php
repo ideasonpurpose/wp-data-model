@@ -1,8 +1,8 @@
 <?php
 
-namespace Ideasonpurpose\CPT;
+namespace IdeasOnPurpose\CPT;
 
-use Ideasonpurpose\WP;
+use IdeasOnPurpose\WP;
 
 class News extends WP\CPT
 {
