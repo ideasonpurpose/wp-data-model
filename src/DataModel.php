@@ -55,8 +55,8 @@ abstract class DataModel
      *
      * The set values look like this:
      *   $this->plugin_info = See https://developer.wordpress.org/reference/functions/get_plugin_data/
-     *   $this->plugin_id = "njhi-data-model/main.php"
-     *   $this->plugin_slug = "njhi-data-model"
+     *   $this->plugin_id = "example-data-model/main.php"
+     *   $this->plugin_slug = "example-data-model"
      *
      */
     public function getInfo()
@@ -69,6 +69,7 @@ abstract class DataModel
 
     public function updateCheck()
     {
+        error_log('in updateCheck');
         $this->getInfo();
         $this->response = get_transient($this->transient);
 
@@ -97,11 +98,16 @@ abstract class DataModel
                 'data_format' => 'body',
             ]);
 
+            \Kint::$mode_default = \Kint::MODE_CLI;
+            error_log(@d($this->plugin_info['Version'], $remote, (object) json_decode($remote['body'])));
+            \Kint::$mode_default = \Kint::MODE_RICH;
+
             if (is_wp_error($remote)) {
                 error_log('Something went wrong: ' . $remote->get_error_message());
             } elseif ($remote['response']['code'] != 200) {
                 error_log("Something went wrong: {$remote['body']}");
             } else {
+
                 /**
                  * WordPress expects $response to be an object with all internal keys
                  * being arrays.
@@ -156,10 +162,14 @@ abstract class DataModel
         $this->getInfo();
         $this->updateCheck();
 
+        \Kint::$mode_default = \Kint::MODE_CLI;
+        error_log(@d($action, $args));
+        \Kint::$mode_default = \Kint::MODE_RICH;
+
         /**
          *  Keeping this conditional after `updateCheck` so we can potentially "warm" the lambda
          */
-        if ($args->slug !== $this->plugin_slug || $action !== 'plugin_information' || $this->response === false) {
+        if ($action !== 'plugin_information' || $args->slug !== $this->plugin_slug || $this->response === false) {
             return $result;
         }
 
