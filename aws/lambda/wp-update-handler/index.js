@@ -70,9 +70,10 @@ exports.handler = async (event) => {
   const { slug, plugin, version: currentVersion } = JSON.parse(event.body);
   const params = { ...defaultParams, Prefix: slug };
 
-  const pages = ["changelog", "about"];
   const sections = {};
-  pages.forEach(async (page) => {
+  const pages = ["about", "changelog"];
+
+  for (const page of pages) {
     const content = await s3
       .getObject({ Bucket, Key: `${slug}/${page}.html` })
       .promise()
@@ -80,7 +81,7 @@ exports.handler = async (event) => {
     if (content) {
       sections[page] = content.Body.toString();
     }
-  });
+  }
 
   if (!slug || !plugin) {
     response.statusCode = 500;
@@ -117,8 +118,6 @@ exports.handler = async (event) => {
       }
     }
   }
-
-  console.log(response);
 
   return response;
 };
