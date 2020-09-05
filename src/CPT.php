@@ -24,8 +24,13 @@ abstract class CPT
         add_action('init', [$this, 'addQueryVars']);
 
         add_action('pre_get_posts', [$this, 'postsPerPage']);
+
+        add_action('admin_enqueue_scripts', [$this, 'adminStyles'], 100);
     }
 
+    /**
+     * @var $typenow is a strange WordPress global used on admin pages, usually set from post_type
+     */
     public function filterByTaxonomy($slug)
     {
         global $typenow;
@@ -37,7 +42,10 @@ abstract class CPT
             $terms = get_terms($slug);
             $terms = array_map(function ($term) use ($slug) {
                 $template = '<option value="%s"%s>%s (%d)</option>';
-                $selected = isset($_GET[$slug]) && $_GET[$slug] == $term->slug ? ' selected="selected"' : '';
+                $selected =
+                    isset($_GET[$slug]) && $_GET[$slug] == $term->slug
+                        ? ' selected="selected"'
+                        : '';
                 return sprintf($template, $term->slug, $selected, $term->name, $term->count);
             }, $terms);
             echo "<select name='$slug' id='$slug' class='postform'>";
@@ -66,9 +74,8 @@ abstract class CPT
         ) {
             $per_page =
                 $query->query['per_page'] ??
-                $query->query['posts_per_page'] ??
-                $this->posts_per_page ??
-                get_option('posts_per_page');
+                ($query->query['posts_per_page'] ??
+                    ($this->posts_per_page ?? get_option('posts_per_page')));
             $query->set('posts_per_page', $per_page);
         }
     }
@@ -92,5 +99,25 @@ abstract class CPT
     {
         global $wp;
         $wp->add_query_var('per_page');
+    }
+
+    /**
+     * @var $adminCSS A blob of CPT-specific CSS.
+     * Rules should probably start with `.post-type-$this->type` so
+     * selectors remain specific to the defined post_type.
+     *
+     * TODO: This should be an empty string
+     */
+    protected $adminCSS = '/* Default Styles */';
+
+    /**
+     * Called from the `admin_enqueue_scripts` action, this
+     * simply inlines any defined blob of CSS into admin pages
+     */
+    public function adminStyles()
+    {
+        if ($this->adminCSS) {
+            wp_add_inline_style('wp-admin', $this->adminCSS);
+        }
     }
 }

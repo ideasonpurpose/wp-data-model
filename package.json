@@ -27,7 +27,7 @@
       {
         "files": "*.php",
         "options": {
-          "printWidth": 120,
+          "printWidth": 100,
           "singleQuote": true,
           "tabWidth": 4,
           "trailingCommaPHP": true
