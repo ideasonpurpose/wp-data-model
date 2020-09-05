@@ -13,14 +13,7 @@ const defaultParams = { Bucket, Delimiter: "/" };
  * Version of latest WordPress plugin
  * TODO: need to pull this value from somewhere else
  */
-const tested = "5.5";
-
-/**
- * Info url for the project
- * TODO: might not even work?
- * TODO: Possible to pull this from package.json or something?
- */
-const projectUrl = "https://github.com/ideasonpurpose/njhi-data-model-plugin";
+const tested = "5.5.1";
 
 /**
  *
@@ -103,7 +96,6 @@ exports.handler = async (event) => {
           new_version: latest.version.version,
           last_modified: latest.LastModified,
           package: `${awsUrl}/${latest.Key}`,
-          url: projectUrl,
           tested,
           icons: {
             "1x": `${awsUrl}/${slug}/${logoFile}`,
