@@ -18,7 +18,6 @@
   ],
   "main": "index.js",
   "scripts": {
-    "lambda:wp": "docker-compose run -e FUNCTION=wp-update-handler lambda",
     "test": "jest",
     "test:watch": "jest --watch",
     "version": "version-everything && git add -u"
@@ -37,10 +36,10 @@
     ]
   },
   "devDependencies": {
-    "@prettier/plugin-php": "^0.14.2",
-    "aws-sdk": "^2.713.0",
-    "jest": "^26.1.0",
-    "prettier": "^2.0.5",
+    "@prettier/plugin-php": "^0.14.3",
+    "aws-sdk": "^2.747.0",
+    "jest": "^26.4.2",
+    "prettier": "^2.1.1",
     "version-everything": "^0.6.3"
   },
   "version-everything": {

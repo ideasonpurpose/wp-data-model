@@ -8,9 +8,6 @@
  * Requires PHP:      7.2
  * Author:            Ideas On Purpose
  * Author URI:        https://www.ideasonpurpose.com
- * Text Domain:       plugin-slug
- * License:           TBD
- * License URI:       TBD
  */
 
 namespace IdeasOnPurpose;
@@ -24,12 +21,13 @@ class DataModel extends WP\DataModel
         /**
          * Custom Taxonomies
          *
-         * Each Taxonomy declaration should include a list of post_type slugs which it
-         * will be associated with.
+         * Each Taxonomy may be declared with a list of post_type slugs to be
+         * associated with.
          *
-         * Taxonomies are listed internally using this order, so define them by importance.
+         * Taxonomies will appear in declaration order, so define them by importance.
          */
-        new Taxonomy\Topic([ 'news']);
+        new Taxonomy\Topic();
+
 
         /**
          * Custom Post Types
@@ -39,10 +37,28 @@ class DataModel extends WP\DataModel
         new CPT\News(20);
 
         /**
-         * Assign built-in Tag and Category taxonomies to Custom Post Types
+         * Remove taxonomies from post_types
+         *
+         * @link https://developer.wordpress.org/reference/functions/unregister_taxonomy_for_object_type/
          */
-        register_taxonomy_for_object_type('post_tag', 'news');
-        register_taxonomy_for_object_type('category', 'news');
+        unregister_taxonomy_for_post_type('category', 'post'  );
+
+                /**
+         * Attach post_types to taxonomies
+         *
+         * Using Taxonomy slugs as keys, assign an array of post_type slugs
+         * Both custom and built-in Taxonomies and post_types will work.
+         * Undefined taxonomies or post_types will pass through with no effect.
+         *
+         * Note: The slugs for built-in taxonomies are: 'post_tag' and 'category'
+         */
+        $this->taxonomyMap = [
+            'post_tag' => ['news'],
+            'topic' => ['post', 'news'],
+            'undefined_tax' => ['undefined_post_type', 'post'],
+        ];
+
+
 
         /**
          * Set separators for the WordPress admin
@@ -51,4 +67,4 @@ class DataModel extends WP\DataModel
     }
 }
 
-new Example();
+new DataModel();

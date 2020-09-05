@@ -1,31 +1,9 @@
 version: "3.7"
 
 services:
-  #
-  # Update Lambda source, send the name of the function as a cli env var
-  #
-  #     docker-compose run -e FUNCTION=wp-update-handler lambda
-  #
-  lambda:
-    build: ./aws
-    image: ideasonpurpose/aws-cli
-    env_file: .env
-
-    volumes:
-      - ./aws:/usr/src
-
-    # Variable substitution was not working in working_dir
-    # working_dir: /usr/src/lambda/${FUNCTION}
-    command: >
-      bash -c "cd /usr/src/lambda/$${FUNCTION} && zip -r /tmp/$${FUNCTION}.zip . -x package\*.json .DS_Store
-      && aws lambda update-function-code \
-          --function-name $${FUNCTION} \
-          --zip-file fileb:///tmp/$${FUNCTION}.zip \
-          --query '{FunctionName: FunctionName, LastUpdateStatus: LastUpdateStatus}'
-          "
-
   composer:
     image: composer
+    user: '${UID:-1000}:${GID:-1000}'    
     volumes:
       - ./:/app
     command: install

@@ -2,11 +2,12 @@ version: "3.7"
 
 services:
   # This is a little silly, but the advantage of using docker-compose
-  # is that all relatives paths are automatically cross-platform.
+  # is that all relative paths are automatically cross-platform.
   # Bare docker commands would need to know the platform and switch
-  # from `${PWD}` on Mac/Linux and %CD% on Windows.
+  # between `${PWD}` on Mac/Linux and %CD% on Windows.
   composer:
     image: composer
+    user: '${UID:-1000}:${GID:-1000}'
     volumes:
       - ./:/app
     command: install
