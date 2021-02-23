@@ -61,7 +61,7 @@ class DataModel extends WP\DataModel
 
 
         /**
-         * Set separators for the WordPress admin
+         * Set separators for the WordPress admin. Separators will be added after any matching menu_indexes. 
          */
         new WP\Admin\Separators(20, 21);
     }
