@@ -21,4 +21,4 @@ env:
 
 ## Example data-model Plugin
 
-To start a new data-model plugin, copy the **example** directory. Create new CPTs and Taxonomies in the **lib** directory. Instantiate them from **main.php**.
+To start a new data-model plugin, copy the **example** directory. Create new CPTs and Taxonomies in the **lib** directory, then instantiate them from **main.php**. Rename built-in Post Types and Taxonomies by updating the corresponding files in **lib/Rename**.

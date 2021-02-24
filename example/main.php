@@ -28,7 +28,6 @@ class DataModel extends WP\DataModel
          */
         new Taxonomy\Topic();
 
-
         /**
          * Custom Post Types
          *
@@ -41,9 +40,16 @@ class DataModel extends WP\DataModel
          *
          * @link https://developer.wordpress.org/reference/functions/unregister_taxonomy_for_object_type/
          */
-        unregister_taxonomy_for_post_type('category', 'post'  );
+        unregister_taxonomy_for_object_type('category', 'post');
 
-                /**
+        /**
+         * Rename built-in Posts, Tags and Categories
+         */
+        new Rename\Post();
+        new Rename\Category();
+        new Rename\Tag();
+
+        /**
          * Attach post_types to taxonomies
          *
          * Using Taxonomy slugs as keys, assign an array of post_type slugs
@@ -58,10 +64,8 @@ class DataModel extends WP\DataModel
             'undefined_tax' => ['undefined_post_type', 'post'],
         ];
 
-
-
         /**
-         * Set separators for the WordPress admin. Separators will be added after any matching menu_indexes. 
+         * Set separators for the WordPress admin. Separators will be added after any matching menu_indexes.
          */
         new WP\Admin\Separators(20, 21);
     }
