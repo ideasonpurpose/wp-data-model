@@ -20,7 +20,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "version": "version-everything && git add -u"
+    "version": "version-everything && auto-changelog && git add -u"
   },
   "prettier": {
     "overrides": [
@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@prettier/plugin-php": "^0.16.1",
+    "auto-changelog": "^2.2.1",
     "aws-sdk": "^2.850.0",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
