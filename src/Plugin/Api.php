@@ -106,10 +106,6 @@ class Api
      */
     public function updaterComplete($upgrader_object, $options)
     {
-        \Kint::$mode_default = \Kint::MODE_CLI;
-        error_log(@d('updaterComplete', $options));
-        \Kint::$mode_default = \Kint::MODE_RICH;
-
         // If an update has taken place and the updated type is plugins and the plugins element exists
         if (
             $options['action'] == 'update' &&

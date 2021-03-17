@@ -22,3 +22,24 @@ env:
 ## Example data-model Plugin
 
 To start a new data-model plugin, copy the **example** directory. Create new CPTs and Taxonomies in the **lib** directory, then instantiate them from **main.php**. Rename built-in Post Types and Taxonomies by updating the corresponding files in **lib/Rename**.
+
+### WordPress Compatibility
+
+<!-- TODO: this should happen at build time, not deploy -->
+
+The value of `tested` is generated on deploy by the GitHub action. It is assumed that whatever
+the latest version as reported by the WordPress API will be what the plugin was tested against.
+
+## Testing plugin updates
+
+Our [WordPress Updates AWS endpoint][wp-update] can be tested by sending a POST request with a raw JSON body which looks something like this:
+
+```json
+{
+  "version": "0.0.1",
+  "slug": "gip-data-model",
+  "plugin": "gip-data-model/main.php"
+}
+```
+
+[wp-update]: https://1q32dgotuh.execute-api.us-east-2.amazonaws.com/production
