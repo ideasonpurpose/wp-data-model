@@ -1,6 +1,7 @@
+const path = require("path");
+
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3({ apiVersion: "2006-03-01", signatureVersion: "v4" });
-
 const semver = require("semver");
 
 const Bucket = "ideasonpurpose-wp-updates";
@@ -10,18 +11,13 @@ const bannerFile = "iop-banner-1544x500.jpg";
 const defaultParams = { Bucket, Delimiter: "/" };
 
 /**
- * Version of latest WordPress plugin
- * TODO: need to pull this value from somewhere else
- */
-const tested = "5.5.1";
-
-/**
  *
  * @returns {Object} {Key: 'filename_1.2.3.zip', Version: <semver version object>}
  * @param {Object} params parameters for s3
  * @param {Array} allKeys Container for returned keys, used for recursion
  */
 const getLatestRelease = async (params, allKeys = []) => {
+  console.log({ params });
   const response = await s3.listObjectsV2(params).promise();
   if (response.KeyCount == 0) return false;
 
@@ -34,6 +30,13 @@ const getLatestRelease = async (params, allKeys = []) => {
 
   const latest = allKeys.reduce(
     (latest, { Key, LastModified }) => {
+      /**
+       * reject hash-named manual builds
+       */
+      if (/_[^.]{2,}$/.test(path.parse(Key).name)) {
+        return latest;
+      }
+
       const version = semver.coerce(Key);
       return version && semver.gt(version, latest.version)
         ? { Key, LastModified, version }
@@ -66,6 +69,24 @@ exports.handler = async (event) => {
   const sections = {};
   const pages = ["about", "changelog"];
 
+  let tested = "0.0.0";
+  let url = "https://github.com/ideasonpurpose";
+  const metadataJSON = await s3
+    .getObject({ Bucket, Key: `${slug}/metadata.json` })
+    .promise()
+    .catch((err) => console.log(err));
+  if (metadataJSON && metadataJSON.Body) {
+    try {
+      tested = JSON.parse(metadataJSON.Body).tested;
+      url = JSON.parse(metadataJSON.Body).homepage;
+    } catch (err) {
+      console.log(
+        "Unable to parse metadata.json, using defaults for tested and url.",
+        err
+      );
+    }
+  }
+
   for (const page of pages) {
     const content = await s3
       .getObject({ Bucket, Key: `${slug}/${page}.html` })
@@ -79,16 +100,24 @@ exports.handler = async (event) => {
   if (!slug || !plugin) {
     response.statusCode = 500;
     response.body = "A plugin or theme name is required.";
+    console.log(`500: ${response.body}`);
   } else if (plugin.indexOf(slug) !== 0) {
     response.statusCode = 500;
     response.body = "The plugin and slug must match.";
+    console.log(`500: ${response.body}`);
   } else {
     const latest = await getLatestRelease(params);
     if (!latest) {
       response.statusCode = 404;
       response.body = `No plugin or theme matched "${slug}"`;
+      console.log(`404: ${response.body}`);
     } else {
       if (semver.gt(latest.version, currentVersion)) {
+        const {
+          AWS_LAMBDA_FUNCTION_NAME,
+          AWS_LAMBDA_FUNCTION_VERSION,
+          AWS_REGION,
+        } = process.env;
         response.statusCode = 200; // redundant but the clarity is nice
         response.body = JSON.stringify({
           slug,
@@ -96,6 +125,7 @@ exports.handler = async (event) => {
           new_version: latest.version.version,
           last_modified: latest.LastModified,
           package: `${awsUrl}/${latest.Key}`,
+          url,
           tested,
           icons: {
             "1x": `${awsUrl}/${slug}/${logoFile}`,
@@ -106,6 +136,9 @@ exports.handler = async (event) => {
           },
           compatibility: {},
           sections,
+          AWS_LAMBDA_FUNCTION_NAME,
+          AWS_LAMBDA_FUNCTION_VERSION,
+          AWS_REGION,
         });
       }
     }
