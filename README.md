@@ -1,6 +1,6 @@
 # wp-data-model
 
-#### Version 0.4.2
+#### Version 0.4.3
 
 Base package for building data models for WordPress sites.
 
