@@ -1,13 +1,19 @@
+# This file should be an exact copy of the original in wp-data-model:
+# https://github.com/ideasonpurpose/wp-data-model/blob/master/example/.github/workflows/publish-to-aws.yml
+
 name: Push Update to AWS
 
 on:
   push:
     tags: ["v*"]
 
+  workflow_dispatch:
+
 env:
   S3_URI: s3://ideasonpurpose-wp-updates
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: us-east-1
 
 jobs:
   build:
@@ -19,8 +25,13 @@ jobs:
 
       - name: Set up REPO and TAG environment vars
         run: |
-          echo  ::set-env name=REPO::${GITHUB_REPOSITORY#*/}
-          echo  ::set-env name=TAG::${GITHUB_REF#refs/tags/v}
+          echo  "REPO=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+          echo  "TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: No tag, use SHA for output name
+        if: ${{ ! startsWith(github.ref, 'refs/tags') }}
+        run: |
+          echo "TAG=${GITHUB_SHA:0:6}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
@@ -31,10 +42,16 @@ jobs:
           rm -rf ${REPO}.zip
           zip -r ${REPO}.zip ${REPO} -i ${REPO}/main.php ${REPO}/lib/\* ${REPO}/vendor/\* ${REPO}/readme.txt
 
-      - name: Render README to HTML
+      - name: Render README and CHANGELOG HTML
         run: |
           npx marked -o assets/about.html README.md
           npx marked -o assets/changelog.html CHANGELOG.md
+
+      - name: Generate metadata.json file
+        run: |
+          curl -s http://api.wordpress.org/core/stable-check/1.0/ | jq 'to_entries[] | {tested: select(.value == "latest").key}' > ${{ runner.temp }}/tested.json
+          cat package.json| jq '{homepage: .homepage}' > ${{ runner.temp }}/homepage.json
+          jq -s '.[0] * .[1]'  ${{ runner.temp }}/homepage.json ${{ runner.temp }}/tested.json > assets/metadata.json
 
       - name: Send artifacts to S3
         run: |
