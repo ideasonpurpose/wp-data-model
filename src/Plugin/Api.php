@@ -73,9 +73,9 @@ class Api
          *  Keeping this conditional after `updateCheck` so we can potentially "warm" the lambda
          */
         if (
-            $args->slug !== $this->plugin_slug ||
+            $this->response === false ||
             $action !== 'plugin_information' ||
-            $this->response === false
+            $args->slug !== $this->plugin_slug
         ) {
             return $result;
         }
