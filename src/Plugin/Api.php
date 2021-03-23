@@ -182,7 +182,7 @@ class Api
                  */
                 $this->response = (object) json_decode($remote['body'], true);
 
-                set_transient($this->transient, $this->response, HOUR_IN_SECONDS);
+                set_transient($this->transient, $this->response, 15 * MINUTE_IN_SECONDS);
             }
         }
     }
