@@ -20,6 +20,10 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
+    "composer": "npm run composer:install",
+    "composer:install": "docker-compose run --rm composer",
+    "composer:require": "docker-compose run --rm composer require",
+    "composer:update": "docker-compose run --rm composer update",
     "version": "version-everything && auto-changelog && git add -u"
   },
   "prettier": {
