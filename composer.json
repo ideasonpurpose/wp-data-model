@@ -14,11 +14,18 @@
     }
   ],
   "minimum-stability": "dev",
-  "require": {},
+  "require": {
+    "doctrine/inflector": "2.0.x-dev"
+  },
   "autoload": {
     "psr-4": {
       "IdeasOnPurpose\\WP\\": "src"
     }
   },
+<<<<<<< HEAD
   "version": "0.4.3"
 }
+=======
+  "version": "0.4.2"
+}
+>>>>>>> 0b69dab... Rename command and default label generation
