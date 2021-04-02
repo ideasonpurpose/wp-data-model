@@ -18,12 +18,12 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
     "composer": "npm run composer:install",
     "composer:install": "docker-compose run --rm composer",
     "composer:require": "docker-compose run --rm composer require",
     "composer:update": "docker-compose run --rm composer update",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "version": "version-everything && auto-changelog && git add -u"
   },
   "prettier": {
@@ -40,16 +40,16 @@
     ]
   },
   "devDependencies": {
-    "@prettier/plugin-php": "^0.16.1",
+    "@prettier/plugin-php": "^0.16.2",
     "auto-changelog": "^2.2.1",
-    "aws-sdk": "^2.850.0",
+    "aws-sdk": "^2.878.0",
     "jest": "^26.6.3",
     "prettier": "^2.2.1",
     "version-everything": "^0.6.3"
   },
   "auto-changelog": {
     "package": true,
-    "commitLimit": 7
+    "backfillLimit": 7
   },
   "version-everything": {
     "files": [
