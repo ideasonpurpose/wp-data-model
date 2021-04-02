@@ -66,7 +66,7 @@ abstract class DataModel
         }
     }
 
-    private static function updateLabels($labelBase, $labels)
+    private static function updateLabels($labelBase, $labels, $inflect = true)
     {
         /**
          * Enforce singular/plural and capitalizations for objects and labels
@@ -78,10 +78,15 @@ abstract class DataModel
         $pluralSrc = strtolower($inflector->pluralize($labels->name));
         $pluralSrcTitleCase = $inflector->capitalize($pluralSrc);
 
-        $singular = strtolower($inflector->singularize($labelBase));
-        $singularTitleCase = $inflector->capitalize($singular);
-        $plural = strtolower($inflector->pluralize($labelBase));
-        $pluralTitleCase = $inflector->capitalize($plural);
+        if ($inflect) {
+            $singular = strtolower($inflector->singularize($labelBase));
+            $singularTitleCase = $inflector->capitalize($singular);
+            $plural = strtolower($inflector->pluralize($labelBase));
+            $pluralTitleCase = $inflector->capitalize($plural);
+        } else {
+            $singular = $plural = strtolower($labelBase);
+            $singularTitleCase = $pluralTitleCase = $inflector->capitalize($labelBase);
+        }
 
         $patterns = [
             "/\b$singularSrc\b/",
@@ -108,9 +113,10 @@ abstract class DataModel
      * @param  String $labelBase - The name to use as the basis of the generated labels
      * @param  Array $overrides - A set of non-standard labels to apply over defaults
      * @param  String $object - The kind of labels to generate, 'page', 'category', etc.
+     * @param  Boolean $inflect - Whether or not to normalize $labelBase to singular/plural
      * @return void
      */
-    public static function labels($labelBase, $overrides = [], $object = 'page')
+    public static function labels($labelBase, $inflect = true, $overrides = [], $object = 'page')
     {
         global $wp_post_types, $wp_taxonomies;
 
@@ -142,7 +148,7 @@ abstract class DataModel
             return new Error($msg);
         }
 
-        $newLabels = self::updateLabels($labelBase, $labels);
+        $newLabels = self::updateLabels($labelBase, $labels, $inflect);
 
         /**
          * Apply overrides to new label values
@@ -157,17 +163,17 @@ abstract class DataModel
      * Default to 'page' since that has a few more labels than 'post',
      * extra labels will be ignored.
      */
-    public static function postTypeLabels($labelBase, $overrides = [])
+    public static function postTypeLabels($labelBase, $inflect = true, $overrides = [])
     {
-        return self::labels($labelBase, $overrides, 'page');
+        return self::labels($labelBase, $inflect, $overrides, 'page');
     }
 
     /**
      * Default to 'category' since that has a few more labels than 'post_tag',
      * extra labels will be ignored.
      */
-    public static function taxonomyLabels($labelBase, $overrides = [])
+    public static function taxonomyLabels($labelBase, $inflect = true, $overrides = [])
     {
-        return self::labels($labelBase, $overrides, 'category');
+        return self::labels($labelBase, $inflect, $overrides, 'category');
     }
 }

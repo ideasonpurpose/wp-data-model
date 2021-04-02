@@ -7,27 +7,36 @@ use IdeasOnPurpose\DataModel;
 abstract class Rename
 {
     /**
-     * __callStatic is a magic method which renames the invoked thing using the string in the first
-     * index of $args. Labels can be individually overridden by supplying an array of overrides
-     * as the second argument. An example call which renames 'Pages' to 'Chapters' looks like this:
+     * __callStatic is a magic method which renames the invoked thing using a string in the first
+     * index of $args. Built-in types must be referenced by a known short name, eg. 'post', 'page',
+     * 'category', 'tag', etc. Tags can be either 'tag' or 'post_tag'.
      *
-     *     WP\Rename::page('chapter', ['not_found' => 'Nope, no chapters here.']);
+     * A simple example call which renames 'Pages' to 'Chapters' looks like this:
      *
-     * Individual labels can be overridden by sending an array in the second argument:
+     *     WP\Rename::page('chapter');
      *
-     *     WP\Rename::tag('flavors', ['popular_items' => 'Most delicious flavors']);
+     * Set the second argument to false to disable singular/plural inflection. Renaming 'Categories'
+     * to 'Class' would look like this:
+     *
+     *     WP\Rename::category('class', false);
+     *
+     * Individual labels can be overridden by sending an array in the third argument:
+     *
+     *     WP\Rename::tag('flavors', true, ['popular_items' => 'Most delicious flavors']);
      *
      * Unknown types will be ignored. Overrides should be an associative array and can include some
      * or all available labels.
      *
      * @param String $name - The name of the invoked magic method, use this as the thing to rename
-     * @param Array $args - An array of additional args. The first item is the name the thing will
-     *                      be renamed to.
+     * @param Array $args - An array of additional args. Breaks down like this:
+     *                      [ $labelBase, $inflect, $overrides ]
      */
     public static function __callStatic($name, $args)
     {
         $labelBase = $args[0] ?? null;
-        $overrides = $args[1] ?? [];
+        $inflect = !!$args[1];
+        $overrides = $args[2] ?? [];
+
         if (!$labelBase) {
             return new Error('A new name must be provided when renaming.');
         }
@@ -36,18 +45,18 @@ abstract class Rename
         }
 
         /**
-         * Special case for "Tags" being stored as "post_tag". We just re-map it.
+         * This is a Special case for "Tags" since WordPress stores them as "post_tag". We just re-map it.
          */
         $name = strtolower($name) === 'tag' ? 'post_tag' : $name;
 
-        self::update($name, $labelBase, $overrides);
+        self::update($name, $labelBase, $overrides, $inflect);
     }
 
     /**
      * Generates a set of type-specific labels based on $labelBase, then assigns those labels
      * to the Post_type or Taxonomy $object
      */
-    protected static function update($object, $labelBase, $overrides = [])
+    protected static function update($object, $labelBase, $inflect = true, $overrides = [])
     {
         global $wp_post_types, $wp_taxonomies;
 
@@ -55,9 +64,17 @@ abstract class Rename
          * Assign new labels to native objects
          */
         if (array_key_exists($object, $wp_post_types)) {
-            $wp_post_types[$object]->labels = DataModel::postTypeLabels($labelBase, $overrides);
+            $wp_post_types[$object]->labels = DataModel::postTypeLabels(
+                $labelBase,
+                $inflect,
+                $overrides
+            );
         } elseif (array_key_exists($object, $wp_taxonomies)) {
-            $wp_taxonomies[$object]->labels = DataModel::taxonomyLabels($labelBase, $overrides);
+            $wp_taxonomies[$object]->labels = DataModel::taxonomyLabels(
+                $labelBase,
+                $inflect,
+                $overrides
+            );
         } else {
             new Error("'{$object}' is not a known Post_type or Taxonomy. Unable to rename.");
         }

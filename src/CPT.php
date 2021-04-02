@@ -4,10 +4,14 @@ namespace IdeasOnPurpose\WP;
 abstract class CPT
 {
     /**
-     * Override `define` and define Taxonomies and Custom Post Types in the child class
+     * The `props` method will be called immediately from the parent's __construct method.
+     * Use this to define properties, actions and filters specific to the new CPT or Taxonomy.
+     *
+     * This is named 'props' and not 'init' to avoid confusion with the WordPress 'init' hook.
+     * Props is called immediately, and is used to set up properties for the eventual
+     * instantiation of the class.
      */
-
-    abstract protected function define();
+    abstract protected function props();
 
     protected $menu_index;
     /**
@@ -20,12 +24,23 @@ abstract class CPT
     {
         $this->menu_index = $menu_index;
 
-        add_action('init', [$this, 'define']);
+        $this->props();
+
+        add_action('init', [$this, 'register']);
         add_action('init', [$this, 'addQueryVars']);
 
         add_action('pre_get_posts', [$this, 'postsPerPage']);
 
         add_action('admin_enqueue_scripts', [$this, 'adminStyles'], 100);
+    }
+
+    /**
+     * This is called from the WordPress init hook. $type and $args should already have been
+     * defined by the `props()` method.
+     */
+    public function register()
+    {
+        register_post_type($this->type, $this->args);
     }
 
     /**
@@ -102,22 +117,40 @@ abstract class CPT
     }
 
     /**
+     * @deprecated Renaming this to $this->css
      * @var $adminCSS A blob of CPT-specific CSS.
      * Rules should probably start with `.post-type-$this->type` so
      * selectors remain specific to the defined post_type.
      *
      * TODO: This should be an empty string
      */
-    protected $adminCSS = '/* Default Styles */';
+    protected $adminCSS = '';
 
     /**
-     * Called from the `admin_enqueue_scripts` action, this
-     * simply inlines any defined blob of CSS into admin pages
+     * @var $css A blob of CPT- or Taxonomy-specific CSS styles.
+     * Static rules can be defined directly in the child class, but PHP requires
+     * anything dynamic be assembled by a method.
+     * Rules should probably start with `.post-type-{$this->type}` or
+     * `.taxonomy-{$this->type}` to keep selectors specific to the target object.
+     */
+    protected $css = '';
+
+    /**
+     * Called from the `admin_enqueue_scripts` action, this simply inlines
+     * the contents of $this->css into admin pages. Nothing is validated,
+     * so if it blows up, it's on you.
      */
     public function adminStyles()
     {
-        if ($this->adminCSS) {
+        if (!empty($this->adminCSS)) {
+            //TODO: Replace with common Error Reporter (when it exists)
+            new Error('The $this->adminCSS property is deprecated. Use $this->css instead.');
             wp_add_inline_style('wp-admin', $this->adminCSS);
+        }
+        if (!empty($this->css)) {
+            $cssComment = "\n    /* %s " . get_class($this) . " inline CSS */\n";
+            $css = sprintf("$cssComment\n%s\n$cssComment", 'START', $this->css, 'END');
+            wp_add_inline_style('wp-admin', $css);
         }
     }
 }
