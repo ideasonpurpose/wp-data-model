@@ -53,8 +53,7 @@
   },
   "version-everything": {
     "files": [
-      "README.md",
-      "composer.json"
+      "README.md"
     ]
   }
 }
