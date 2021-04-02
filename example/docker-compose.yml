@@ -1,13 +1,18 @@
 version: "3.7"
 
 services:
-  # This is a little silly, but the advantage of using docker-compose
-  # is that all relative paths are automatically cross-platform.
-  # Bare docker commands would need to know the platform and switch
-  # between `${PWD}` on Mac/Linux and %CD% on Windows.
   composer:
     image: composer
     user: '${UID:-1000}:${GID:-1000}'
     volumes:
       - ./:/app
     command: install
+
+  wp-latest:
+    image: realguess/jq:1.4
+    volumes: 
+      - ./:/app
+    command: |
+      sh -c "cat /app/package.json | jq '{homepage: .homepage}' > /tmp/homepage.json &&
+             wget -q -O- http://api.wordpress.org/core/stable-check/1.0 | jq 'to_entries[] | {tested: select(.value == \"latest\").key}' > /tmp/tested.json &&
+             jq -s '.[0] * .[1]'  /tmp/homepage.json /tmp/tested.json > /app/assets/metadata.json"

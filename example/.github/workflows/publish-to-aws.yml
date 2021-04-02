@@ -47,11 +47,11 @@ jobs:
           npx marked -o assets/about.html README.md
           npx marked -o assets/changelog.html CHANGELOG.md
 
-      - name: Generate metadata.json file
-        run: |
-          curl -s http://api.wordpress.org/core/stable-check/1.0/ | jq 'to_entries[] | {tested: select(.value == "latest").key}' > ${{ runner.temp }}/tested.json
-          cat package.json| jq '{homepage: .homepage}' > ${{ runner.temp }}/homepage.json
-          jq -s '.[0] * .[1]'  ${{ runner.temp }}/homepage.json ${{ runner.temp }}/tested.json > assets/metadata.json
+      # - name: Generate metadata.json file
+      #   run: |
+      #     curl -s http://api.wordpress.org/core/stable-check/1.0/ | jq 'to_entries[] | {tested: select(.value == "latest").key}' > ${{ runner.temp }}/tested.json
+      #     cat package.json| jq '{homepage: .homepage}' > ${{ runner.temp }}/homepage.json
+      #     jq -s '.[0] * .[1]'  ${{ runner.temp }}/homepage.json ${{ runner.temp }}/tested.json > assets/metadata.json
 
       - name: Send artifacts to S3
         run: |

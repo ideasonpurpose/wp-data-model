@@ -23,7 +23,9 @@
     "composer:install": "docker-compose run --rm composer",
     "composer:require": "docker-compose run --rm composer require",
     "composer:update": "docker-compose run --rm composer update",
-    "version": "version-everything && auto-changelog && git add -u"
+    "preversion": "npm run wordpress:latest",
+    "version": "version-everything && auto-changelog && git add -u",
+    "wordpress:latest": "docker-compose run --rm wp-latest"
   },
   "prettier": {
     "overrides": [
@@ -39,14 +41,14 @@
     ]
   },
   "dependencies": {
-    "@prettier/plugin-php": "^0.14.2",
-    "auto-changelog": "^2.2.0",
-    "prettier": "^2.0.5",
+    "@prettier/plugin-php": "^0.16.2",
+    "auto-changelog": "^2.2.1",
+    "prettier": "^2.2.1",
     "version-everything": "^0.6.3"
   },
   "auto-changelog": {
     "package": true,
-    "commitLimit": 7
+    "backfillLimit": 7
   },
   "version-everything": {
     "files": [
