@@ -62,9 +62,13 @@ DataModel will normalize singular and plural terms and capitalization to match W
 
 Using a static call for renames was a deliberate choice. Unlike creating a new CPT or Taxonomy, renaming does not create anything new, so a `new` invocation doesn't make sense, even though it would parallel existing syntax.
 
-The `new CPT` and new Taxonomy` syntax make sense because those commands are _creating_ something new. For renaming, the command acts on something which already exists.
+The `new CPT` and `new Taxonomy` syntax make sense because those commands are _creating_ something new. For renaming, the command acts on something which already exists, so the invocation syntax would be inconsistent with the performed action.
 
 The syntax for renaming can often be achieved in a single line whereas creating new CPTs or Taxonomies usually require defining additional actions and filters.
+
+### Composer Updates
+
+The docker-compose Composer service will mount and use local auth credentials if they exist in **~/.composer/auth.json**. If those credentials don't exist and Composer hits an API rate limit, pasting a token will create a new auth.json file in the mount which with persist on the host system.
 
 ## Automatic plugin updates and AWS
 
