@@ -3,14 +3,17 @@ version: "3.7"
 services:
   composer:
     image: composer
-    user: '${UID:-1000}:${GID:-1000}'
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      COMPOSER_HOME: /.composer
     volumes:
       - ./:/app
+      - ~/.composer:/.composer
     command: install
 
   wp-latest:
     image: realguess/jq:1.4
-    volumes: 
+    volumes:
       - ./:/app
     command: |
       sh -c "cat /app/package.json | jq '{homepage: .homepage}' > /tmp/homepage.json &&
