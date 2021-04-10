@@ -25,6 +25,15 @@ $this->taxonomyMap = [
 ];
 ```
 
+### Separators
+
+Call `new WP\Admin\Separators(22, 26)` with a list of indexes to insert separators into the menu. Matching indexes will insert the separator _after_ the CPT, so the following code will show **Events** with a separator directly below it:
+
+```php
+new CPT\Article(23);
+new WP\Admin\Separators(23);
+```
+
 ### Admin CSS
 
 New Post_Types and Taxonomies can add specific CSS Rules to the WordPress admin by defining a `$css` property.
