@@ -34,7 +34,7 @@ abstract class Rename
     public static function __callStatic($name, $args)
     {
         $labelBase = $args[0] ?? null;
-        $inflect = !!$args[1];
+        $inflect = !!($args[1] ?? true);
         $overrides = $args[2] ?? [];
 
         if (!$labelBase) {
@@ -49,7 +49,7 @@ abstract class Rename
          */
         $name = strtolower($name) === 'tag' ? 'post_tag' : $name;
 
-        self::update($name, $labelBase, $overrides, $inflect);
+        self::update($name, $labelBase, $inflect, $overrides);
     }
 
     /**
