@@ -11,7 +11,7 @@ services:
       - ~/.composer:/.composer
     command: install
 
-  wp-latest:
+  wp-tested:
     image: realguess/jq:1.4
     volumes:
       - ./:/app

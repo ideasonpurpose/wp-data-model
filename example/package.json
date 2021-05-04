@@ -25,7 +25,7 @@
     "composer:update": "docker-compose run --rm composer update",
     "preversion": "npm run wordpress:latest",
     "version": "version-everything && auto-changelog && git add -u",
-    "wordpress:latest": "docker-compose run --rm wp-latest"
+    "wordpress:latest": "docker-compose run --rm wp-tested"
   },
   "prettier": {
     "overrides": [
@@ -53,7 +53,6 @@
   "version-everything": {
     "files": [
       "README.md",
-      "composer.json",
       "main.php"
     ]
   }
