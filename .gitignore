@@ -3,3 +3,4 @@ coverage/
 vendor/
 node_modules/
 *:Zone.Identifier
+_build/

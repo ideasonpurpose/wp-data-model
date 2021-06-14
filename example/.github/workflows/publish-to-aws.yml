@@ -1,23 +1,19 @@
-# This file should be an exact copy of the original in wp-data-model:
-# https://github.com/ideasonpurpose/wp-data-model/blob/master/example/.github/workflows/publish-to-aws.yml
-
-name: Push Update to AWS
+name: Build and Publish
 
 on:
   push:
+    branches: "*"
     tags: ["v*"]
-
-  workflow_dispatch:
 
 env:
   S3_URI: s3://ideasonpurpose-wp-updates
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_DEFAULT_REGION: us-east-1
+  AWS_DEFAULT_REGION: us-east-2
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Build, bundle and deploy to AWS
 
     steps:
@@ -25,14 +21,12 @@ jobs:
 
       - name: Set up REPO and TAG environment vars
         run: |
-          echo  "REPO=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
-          echo  "TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-
-      - name: No tag, use SHA for output name
-        if: ${{ ! startsWith(github.ref, 'refs/tags') }}
-        run: |
+          echo "REPO=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
           echo "TAG=${GITHUB_SHA:0:6}" >> $GITHUB_ENV
-
+      - name: This run was triggered by a version tag, reset the $TAG variable to the tag name
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          echo  "TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
@@ -40,21 +34,29 @@ jobs:
         run: |
           cd ../
           rm -rf ${REPO}.zip
-          zip -r ${REPO}.zip ${REPO} -i ${REPO}/main.php ${REPO}/lib/\* ${REPO}/vendor/\* ${REPO}/readme.txt
-
-      - name: Render README and CHANGELOG HTML
+          zip -r ${REPO}.zip ${REPO} -i ${REPO}/main.php ${REPO}/lib/\* ${REPO}/vendor/\*
+      - name: Render README to HTML
         run: |
           npx marked -o assets/about.html README.md
           npx marked -o assets/changelog.html CHANGELOG.md
+      - name: Store Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.REPO }}
+          path: |
+            main.php
+            lib/*
+            vendor/*
+          retention-days: 3
 
-      # - name: Generate metadata.json file
-      #   run: |
-      #     curl -s http://api.wordpress.org/core/stable-check/1.0/ | jq 'to_entries[] | {tested: select(.value == "latest").key}' > ${{ runner.temp }}/tested.json
-      #     cat package.json| jq '{homepage: .homepage}' > ${{ runner.temp }}/homepage.json
-      #     jq -s '.[0] * .[1]'  ${{ runner.temp }}/homepage.json ${{ runner.temp }}/tested.json > assets/metadata.json
-
+      - name: Create GitHub release
+        if: ${{ contains(github.ref, 'refs/tags/') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create $TAG ../${REPO}.zip
       - name: Send artifacts to S3
+        if: ${{ contains(github.ref, 'refs/tags/') && env.AWS_ACCESS_KEY_ID }}
         run: |
           aws s3 sync assets $S3_URI/${REPO}
-          aws s3 cp ../${REPO}.zip $S3_URI/${REPO}.zip
-          aws s3 cp $S3_URI/${REPO}.zip $S3_URI/${REPO}_${TAG}.zip
+          aws s3 cp ../${REPO}.zip ${S3_URI}/${REPO}/${REPO}_${TAG}.zip

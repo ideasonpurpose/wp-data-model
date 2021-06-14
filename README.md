@@ -85,11 +85,21 @@ Whenever a new version is pushed, a GitHub Action runs which compiles and packag
 
 ### AWS Lambda
 
-The **aws** directory contains the lambda function which handles update requests from the WordPress Admin Plugins page. The function should be deployed manually through the AWS Console. Use this link to switch to the correct role: [AWS Login](https://signin.aws.amazon.com/switchrole?roleName=OrganizationAccountAccessRole&account=iop003&displayName=IOP&color=B7CA9D)
+The **aws** directory contains the lambda function which handles update requests from the WordPress Admin Plugins page for each installed plugin.
+
+Lambda function updates must be manually triggered by calling `npm run lambda:deploy`.
+
+#### Notes
+
+- The **wp-update-handler** lambda function lives in AWS region **`us-east-2`**.
+- AWS lambda functions run on node v14, run `nvm use 14` before `npm install` to ensure package compatibility.
+- AWS Credentials should be created from **IAM > Users > Secuirty Credentials** for user **iop-cams**. Duplicate **.env.sample** and update the values in that file
+- AWS API-Gateway now references the lambda using `$LATEST` instead of a published version to make deploying updates simpler. The **Lambda Function** setting is found in the API Gateway Resource's POST - Integration Request options
+- Use this link to switch to the correct organization account role: [AWS Login](https://signin.aws.amazon.com/switchrole?roleName=OrganizationAccountAccessRole&account=iop003&displayName=IOP&color=B7CA9D)
 
 ### GitHub Actions
 
-The publish-to-aws GitHub Action will build the plugin and push the artifact to our S3 updates bucket. The project needs to define two GitHub Secrets for accessing AWS, these names are found in the `env` section at the top of the [example/.github/workflows/publish-to-aws.yml](https://github.com/ideasonpurpose/wp-data-model/blob/master/example/.github/workflows/publish-to-aws.yml#L9-L10) file:
+The **publish-to-aws** GitHub Action (part of the example plugin) will build the plugin and push the artifact to our S3 updates bucket. Each project will need to define two GitHub Secrets for accessing AWS, these names are found in the `env` section at the top of the [example/.github/workflows/publish-to-aws.yml](https://github.com/ideasonpurpose/wp-data-model/blob/master/example/.github/workflows/publish-to-aws.yml#L9-L10) file:
 
 ```yaml
 env:

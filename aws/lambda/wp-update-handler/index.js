@@ -8,16 +8,17 @@ const Bucket = "ideasonpurpose-wp-updates";
 const awsUrl = `https://${Bucket}.s3.us-east-2.amazonaws.com`;
 const logoFile = "iop-logo.svg";
 const bannerFile = "iop-banner-1544x500.jpg";
-const defaultParams = { Bucket, Delimiter: "/" };
+// const defaultParams = { Bucket, Delimiter: "/" };
+const defaultParams = { Bucket };
 
 /**
  *
  * @returns {Object} {Key: 'filename_1.2.3.zip', Version: <semver version object>}
- * @param {Object} params parameters for s3
+ * @param {Object} params {Bucket: 'ideasonpurpose-wp-updates', Delimiter: '/', Prefix: 'iop-data-model'}
  * @param {Array} allKeys Container for returned keys, used for recursion
  */
 const getLatestRelease = async (params, allKeys = []) => {
-  console.log({ params });
+  // console.log({ params });
   const response = await s3.listObjectsV2(params).promise();
   if (response.KeyCount == 0) return false;
 
@@ -30,14 +31,16 @@ const getLatestRelease = async (params, allKeys = []) => {
 
   const latest = allKeys.reduce(
     (latest, { Key, LastModified }) => {
+      const { name, ext } = path.parse(Key);
       /**
-       * reject hash-named manual builds
+       * Reject non-zip files without semver suffixes
        */
-      if (/_[^.]{2,}$/.test(path.parse(Key).name)) {
+      if (ext.toLowerCase() !== ".zip" || !/_(\d*[\d.]){2,}$/.test(name)) {
         return latest;
       }
 
       const version = semver.coerce(Key);
+
       return version && semver.gt(version, latest.version)
         ? { Key, LastModified, version }
         : latest;
@@ -47,6 +50,8 @@ const getLatestRelease = async (params, allKeys = []) => {
 
   return latest;
 };
+// expose getLatestRelease for testing
+exports.getLatestRelease = getLatestRelease;
 
 /**
  * GitHub actions outputs a release named like `plugin-name_1.2.3.zip`
@@ -86,6 +91,8 @@ exports.handler = async (event) => {
       );
     }
   }
+
+  // console.log({ slug, plugin, metadata: metadataJSON.Body.toString() });
 
   for (const page of pages) {
     const content = await s3
@@ -140,6 +147,7 @@ exports.handler = async (event) => {
           AWS_LAMBDA_FUNCTION_VERSION,
           AWS_REGION,
         });
+        console.log({ slug, latest: latest.version.version });
       }
     }
   }

@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   composer:
-    image: composer:2.0.13
+    image: composer:2.1.3
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       COMPOSER_HOME: /.composer
@@ -10,3 +10,12 @@ services:
       - ./:/app
       - ~/.composer:/.composer
     command: install
+
+  aws:
+    image: amazon/aws-cli:2.2.11
+    environment:
+      AWS_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
+      AWS_DEFAULT_REGION:
+    volumes:
+      - ./aws/:/usr/src/
