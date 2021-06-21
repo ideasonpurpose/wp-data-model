@@ -71,6 +71,8 @@ exports.handler = async (event) => {
   const { slug, plugin, version: currentVersion } = JSON.parse(event.body);
   const params = { ...defaultParams, Prefix: slug };
 
+  console.log({ slug, plugin, currentVersion });
+
   const sections = {};
   const pages = ["about", "changelog"];
 
@@ -91,8 +93,6 @@ exports.handler = async (event) => {
       );
     }
   }
-
-  // console.log({ slug, plugin, metadata: metadataJSON.Body.toString() });
 
   for (const page of pages) {
     const content = await s3
