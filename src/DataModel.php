@@ -114,7 +114,7 @@ abstract class DataModel
      * @param  Array $overrides - A set of non-standard labels to apply over defaults
      * @param  String $object - The kind of labels to generate, 'page', 'category', etc.
      * @param  Boolean $inflect - Whether or not to normalize $labelBase to singular/plural
-     * @return void
+     * @return Object
      */
     public static function labels($labelBase, $inflect = true, $overrides = [], $object = 'page')
     {
