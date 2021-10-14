@@ -29,12 +29,23 @@ abstract class DataModel
         new Plugin\Api($this);
 
         /**
+         * Store the existing taxonomy/post_type map for comparison
+         * after registering new taxonomies and CPTs.
+         */
+        $this->map = $this->getNavMenuNames();
+
+        /**
          * Call the child class's register method then parse the TaxonomyMap
          * `register` must be called before init 10
          * `parseTaxonomyMap` must be called after init 10
          */
         add_action('init', [$this, 'register'], 5);
         add_action('init', [$this, 'parseTaxonomyMap'], 100);
+
+        /**
+         * Set all Taxonomies and CTPs to be visible by default in the nav-menu admin
+         */
+        add_filter('get_user_option_metaboxhidden_nav-menus', [$this, 'navMenuVisibility']);
     }
 
     /**
@@ -175,5 +186,72 @@ abstract class DataModel
     public static function taxonomyLabels($labelBase, $inflect = true, $overrides = [])
     {
         return self::labels($labelBase, $inflect, $overrides, 'category');
+    }
+
+    public function getNavMenuNames()
+    {
+        global $wp_taxonomies, $wp_post_types;
+
+        $taxonomies = array_map(function ($tax) {
+            return "add-{$tax}";
+        }, array_keys($wp_taxonomies));
+
+        $post_types = array_map(function ($post_type) {
+            return "add-post-type-{$post_type}";
+        }, array_keys($wp_post_types));
+
+        $map = array_merge($post_types, $taxonomies);
+        return $map;
+    }
+
+    /*
+     *  If there's no $result, then this is likely the initial definiton
+     *  we intercept that and replace it with a modified copy of the
+     *  code from wp-admin/includes/nav-menu.php
+     */
+    public function navMenuVisibility($hidden)
+    {
+        global $wp_meta_boxes;
+
+        /**
+         * Only recreate the hidden nav-menu array if it's not already set
+         */
+        if ($hidden !== false) {
+            return $hidden;
+        }
+
+        /**
+         * from wp-admin/includes/nav-menu.php:185
+         */
+        $wp_defaults = [
+            'add-post-type-page',
+            'add-post-type-post',
+            'add-custom-links',
+            'add-category',
+        ];
+        $map = array_diff($this->getNavMenuNames(), $this->map);
+        $initial_meta_boxes = array_merge($wp_defaults, $map);
+
+        /**
+         * Mostly direct copy from wp-admin/includes/nav-menu.php
+         * @link https://github.com/WordPress/WordPress/blob/0d1e4e553c7b0ec0bf57a02dc0e40b46e2d1ac1d/wp-admin/includes/nav-menu.php#L171-L202
+         */
+        $hidden_meta_boxes = [];
+
+        foreach (array_keys($wp_meta_boxes['nav-menus']) as $context) {
+            foreach (array_keys($wp_meta_boxes['nav-menus'][$context]) as $priority) {
+                foreach ($wp_meta_boxes['nav-menus'][$context][$priority] as $box) {
+                    if (in_array($box['id'], $initial_meta_boxes, true)) {
+                        unset($box['id']);
+                    } else {
+                        $hidden_meta_boxes[] = $box['id'];
+                    }
+                }
+            }
+        }
+
+        $user = wp_get_current_user();
+        update_user_meta($user->ID, 'metaboxhidden_nav-menus', $hidden_meta_boxes);
+        return $hidden_meta_boxes;
     }
 }

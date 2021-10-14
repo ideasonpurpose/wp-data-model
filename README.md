@@ -79,6 +79,16 @@ The syntax for renaming can often be achieved in a single line whereas creating 
 
 The docker-compose Composer service will mount and use local auth credentials if they exist in **~/.composer/auth.json**. If those credentials don't exist and Composer hits an API rate limit, pasting a token will create a new auth.json file in the mount which with persist on the host system.
 
+### Nav-Menu Visibility
+
+The plugin will automatically set all custom Taxonomies and CPTs to be visible by default in the WordPress Nav-Menu Admin for new user accounts. Previously, users had to remember to open Screen Options and enable each component of the data model.
+
+If you'd like to reset nav-menu visibility for all existing user accounts, run this to clear previous entries from the user_meta table.
+
+```sql
+DELETE FROM `wp_usermeta` WHERE `meta_key` = "metaboxhidden_nav-menus";
+```
+
 ## Automatic plugin updates and AWS
 
 Whenever a new version is pushed, a GitHub Action runs which compiles and packages the project, then pushes the versioned asset to one of our AWS S3 buckets. A lambda microservice handles queries from the plugin and enables native WordPress plugin updates for new versions.
@@ -115,8 +125,8 @@ Our [WordPress Updates AWS endpoint][wp-update] can be tested by sending a POST 
 ```json
 {
   "version": "0.0.1",
-  "slug": "gip-data-model",
-  "plugin": "gip-data-model/main.php"
+  "slug": "example-data-model",
+  "plugin": "example-data-model/main.php"
 }
 ```
 
