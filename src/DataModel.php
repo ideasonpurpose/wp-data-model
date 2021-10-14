@@ -43,7 +43,7 @@ abstract class DataModel
         add_action('init', [$this, 'parseTaxonomyMap'], 100);
 
         /**
-         * Set all Taxonomies and CTPs to be visible by default in the nav-menu admin
+         * Set all Taxonomies and CPTs to be visible by default in the nav-menu admin
          */
         add_filter('get_user_option_metaboxhidden_nav-menus', [$this, 'navMenuVisibility']);
     }
@@ -205,8 +205,8 @@ abstract class DataModel
     }
 
     /*
-     *  If there's no $result, then this is likely the initial definiton
-     *  we intercept that and replace it with a modified copy of the
+     *  If $hidden is false, then this is likely the initial metadata definition
+     *  This filter intercepts that and replaces it using a modified copy of the
      *  code from wp-admin/includes/nav-menu.php
      */
     public function navMenuVisibility($hidden)
