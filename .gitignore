@@ -1,6 +1,8 @@
 .env
 coverage/
+coverage.xml
 vendor/
 node_modules/
 *:Zone.Identifier
 _build/
+.phpunit.cache

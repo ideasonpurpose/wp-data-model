@@ -1,8 +1,6 @@
-version: "3.7"
-
 services:
   composer:
-    image: composer:2.1.3
+    image: composer:2.1.9
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       COMPOSER_HOME: /.composer
@@ -11,8 +9,17 @@ services:
       - ~/.composer:/.composer
     command: install
 
+  test:
+    build: .
+    user: "${UID:-1000}:${GID:-1000}"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    entrypoint: []
+    command: vendor/bin/phpunit
+
   aws:
-    image: amazon/aws-cli:2.2.11
+    image: amazon/aws-cli:2.2.46
     environment:
       AWS_ACCESS_KEY_ID:
       AWS_SECRET_ACCESS_KEY:

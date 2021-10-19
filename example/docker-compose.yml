@@ -1,7 +1,8 @@
-version: "3.7"
-
 services:
+  # Utility service for running composer, provides a local volume for storing access tokens
+  # Image from: https://hub.docker.com/_/composer
   composer:
+    image: composer:2.1.9
     image: composer
     user: "${UID:-1000}:${GID:-1000}"
     environment:
