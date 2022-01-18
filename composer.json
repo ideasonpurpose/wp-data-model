@@ -13,7 +13,6 @@
       "email": "joe@ideasonpurpose.com"
     }
   ],
-  "minimum-stability": "dev",
   "require": {
     "doctrine/inflector": "2.0.4",
     "ideasonpurpose/wp-admin-separators": "1.0.6"
