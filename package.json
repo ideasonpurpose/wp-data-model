@@ -19,18 +19,16 @@
   "main": "index.js",
   "scripts": {
     "composer": "npm run composer:install",
-    "composer:install": "docker-compose run --rm composer",
-    "composer:require": "docker-compose run --rm composer require",
-    "composer:update": "docker-compose run --rm composer update",
+    "composer:install": "docker compose run --rm composer",
+    "composer:update": "docker compose run --rm composer update",
     "prelambda:deploy": "npm run lambda:zip",
     "lambda:deploy": "docker-compose run aws lambda update-function-code --function-name wp-update-handler --zip-file fileb:///usr/src/_build/wp-update-handler.zip",
-    "postlambda:deploy": "docker-compose run aws lambda publish-version --function-name wp-update-handler",
+    "postlambda:deploy": "docker compose run aws lambda publish-version --function-name wp-update-handler",
     "lambda:zip": "node aws/dev/zip.js",
-    "test": "docker-compose run test || exit 0",
-    "posttest": "replace-in-file '<file name=\"/app/' '<file name=\"./' coverage.xml --quiet",
+    "test": "docker compose run --rm test",
     "test:aws": "jest",
     "test:aws:watch": "jest --watch",
-    "test:watch": "chokidar '{src,tests}/**/*.php' -c 'npm run test'",
+    "test:watch": "docker compose run --rm test watch",
     "version": "version-everything && auto-changelog && git add -u"
   },
   "prettier": {
@@ -60,19 +58,18 @@
     ]
   },
   "devDependencies": {
-    "@prettier/plugin-php": "^0.17.5",
+    "@prettier/plugin-php": "^0.17.6",
     "archiver": "^5.3.0",
     "auto-changelog": "^2.3.0",
-    "aws-sdk": "^2.1003.0",
+    "aws-sdk": "^2.1059.0",
     "chokidar-cli": "^3.0.0",
-    "dotenv": "^10.0.0",
-    "filesize": "^8.0.3",
+    "dotenv": "^14.2.0",
+    "filesize": "^8.0.6",
     "fs-extra": "^10.0.0",
-    "jest": "^27.2.5",
-    "prettier": "^2.4.1",
+    "jest": "^27.4.7",
+    "prettier": "^2.5.1",
     "pretty-hrtime": "^1.0.3",
-    "replace-in-file": "^6.2.0",
-    "version-everything": "^0.6.4"
+    "version-everything": "^0.7.4"
   },
   "auto-changelog": {
     "package": true,
