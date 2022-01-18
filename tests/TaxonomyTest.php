@@ -39,6 +39,7 @@ final class TaxonomyTest extends TestCase
     public function testAdminStyles()
     {
         global $inline_styles;
+        $inline_styles = [];
         $this->Taxonomy->adminStyles();
         $this->assertStringContainsString('wp-admin', $inline_styles[0]['handle']);
         $this->assertStringContainsString('/* START', $inline_styles[0]['data']);
