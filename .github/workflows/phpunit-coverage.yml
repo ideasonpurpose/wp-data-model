@@ -1,0 +1,58 @@
+name: PHPUnit Test Coverage
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress --no-suggest
+          composer require phpunit/phpunit
+
+      - name: Run test suite
+        env:
+          XDEBUG_MODE: coverage
+        run: vendor/bin/phpunit
+
+      # The Coveralls repo token is found on the project's Settings page
+      - name: Upload to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+          COVERALLS_RUN_LOCALLY: yes
+        run: |
+          composer require 'php-coveralls/php-coveralls:2.5.2'
+          vendor/bin/php-coveralls \
+            --coverage_clover ./coverage.xml \
+            --json_path ./coveralls-upload.json \
+            --verbose
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: false
+          files: ./coverage.xml
+          verbose: true
+
+      # The Code Climate Test Coverage Reporter ID can be found by visiting the project's
+      # Repo Settings pane, click Test Coverage in the left sidebar. Find the ID in the
+      # second section.
+      - name: Code Climate coverage
+        uses: paambaati/codeclimate-action@v3.0.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        with:
+          debug: true
+          coverageLocations: |
+            coverage.xml:clover
