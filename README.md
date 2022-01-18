@@ -4,6 +4,12 @@
 
 Base package for building data model plugins for WordPress sites at [Ideas On Purpose](https://www.ideasonpurpose.com).
 
+[![Packagist](https://badgen.net/packagist/v/ideasonpurpose/wp-data-model)](https://packagist.org/packages/ideasonpurpose/wp-data-model)
+[![codecov](https://codecov.io/gh/ideasonpurpose/wp-data-model/branch/master/graph/badge.svg)](https://codecov.io/gh/ideasonpurpose/wp-data-model)
+[![Coverage Status](https://coveralls.io/repos/github/ideasonpurpose/wp-data-model/badge.svg)](https://coveralls.io/github/ideasonpurpose/wp-data-model)
+[![Maintainability](https://api.codeclimate.com/v1/badges/4aa4c56b9e813dd66f9a/maintainability)](https://codeclimate.com/github/ideasonpurpose/wp-data-model/maintainability)
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+
 ## Example data-model Plugin
 
 To start a new data-model plugin, copy the **example** directory. Create new CPTs and Taxonomies in the **lib** directory, then instantiate them from **main.php**. Connect Taxonomies to Post_Types with a `taxonomyMap` and rename built-in Post_Types and Taxonomies with static calls to `WP\Rename`.
