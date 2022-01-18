@@ -31,6 +31,7 @@ Test\Stubs::init();
  * @covers \IdeasOnPurpose\WP\DataModel
  */
 final class DataModelTest extends TestCase
+
 {
     public function setUp(): void
     {
@@ -62,8 +63,8 @@ final class DataModelTest extends TestCase
         $setMap();
         $stub->parseTaxonomyMap();
 
-        \Kint::$mode_default = \Kint::MODE_CLI;
-        error_log(@d($stub));
-        \Kint::$mode_default = \Kint::MODE_RICH;
+        // \Kint::$mode_default = \Kint::MODE_CLI;
+        // error_log(@d($stub));
+        // \Kint::$mode_default = \Kint::MODE_RICH;
     }
 }

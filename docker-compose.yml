@@ -1,6 +1,7 @@
 services:
+  # https://hub.docker.com/_/composer
   composer:
-    image: composer:2.1.9
+    image: composer:2.2.4
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       COMPOSER_HOME: /.composer
@@ -9,14 +10,12 @@ services:
       - ~/.composer:/.composer
     command: install
 
+  # https://www.github.com/ideasonpurpose/docker-phpunit-watch
   test:
-    build: .
-    user: "${UID:-1000}:${GID:-1000}"
+    image: ideasonpurpose/phpunit-watch:dev
     volumes:
       - ./:/app
-    working_dir: /app
-    entrypoint: []
-    command: vendor/bin/phpunit
+
 
   aws:
     image: amazon/aws-cli:2.2.46
