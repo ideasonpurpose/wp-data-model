@@ -71,22 +71,34 @@ abstract class CPT
     }
 
     /**
-     * Reference: https://codex.wordpress.org/Plugin_API/Action_Reference/pre_get_posts#Changing_the_number_of_posts_per_page.2C_by_post_type
+     * @deprecated Theme-specific view option, shouldn't be here. Will be removed
+     *
+     * Reference: https://developer.wordpress.org/reference/hooks/pre_get_posts/#change-the-number-of-posts-per-page-by-post-type
      *
      * Assignment hierarchy for posts_per_page:
      *      1. $query->query['per_page']
      *      2. $query->query['posts_per_page']
      *      3. $this->posts_per_page
      *      4. get_option('posts_per_page')
+     *
+     *
+     * TODO: This is theme-specific, and should not be here
+     *
      */
     public function postsPerPage($query)
     {
+        new Error(
+            'The postsPerPage method is deprecated and will be removed in the next minor release. Settings for the number of posts to return for a given post_type should be done in the theme.'
+        );
+
+        // d( $query);
         if (
             !is_admin() &&
             !wp_is_json_request() &&
             isset($query->query_vars['post_type']) &&
             $query->query_vars['post_type'] == $this->type
-        ) {
+            ) {
+                // d('here?');
             $per_page =
                 $query->query['per_page'] ??
                 ($query->query['posts_per_page'] ??
@@ -97,6 +109,14 @@ abstract class CPT
 
     /**
      * Call this to remove the date menu for this CPT
+     * Should be called from the ____ filter:
+     *
+     *     add_filter('disable_months_dropdown', [$this, 'removeDateMenu'], 10, 2);
+     *
+     * @link https://developer.wordpress.org/reference/hooks/disable_months_dropdown/
+     *
+     * TODO: This should be self-contained.
+     *       Base it on a setting/flag, and auto-apply the filter as well.
      */
     public function removeDateMenu($disable, $post_type)
     {
@@ -109,6 +129,8 @@ abstract class CPT
     /**
      * Add `per_page` query var for overriding posts_per_page from the url
      * NOTE: This overlaps with the wp-json query var
+     *
+     * TODO: This seems like a really bad idea in retrospect. In use? Can we remove it?
      */
     public function addQueryVars()
     {

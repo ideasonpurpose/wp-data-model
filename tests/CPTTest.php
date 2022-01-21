@@ -39,8 +39,6 @@ final class CPTTest extends TestCase
         $this->adminCSS = $this->Ref->getProperty('adminCSS');
         $this->adminCSS->setAccessible(true);
         $this->adminCSS->setValue($this->CPT, '');
-
-
     }
 
     public function testRegister()
@@ -48,7 +46,6 @@ final class CPTTest extends TestCase
         global $post_types;
         $post_types = [];
         $this->assertNull($this->CPT->register());
-        // d($post_types);
         $this->assertContains($this->CPT->type, $post_types);
     }
 
@@ -58,8 +55,6 @@ final class CPTTest extends TestCase
         $inline_styles = [];
 
         $this->css->setValue($this->CPT, 'Test CSS String');
-        // $this->adminCSS->setValue($this->CPT, '');
-
 
         $this->CPT->adminStyles();
         $this->assertStringContainsString('wp-admin', $inline_styles[0]['handle']);
@@ -71,19 +66,50 @@ final class CPTTest extends TestCase
         global $inline_styles, $error_log;
         $inline_styles = [];
 
-        // $this->expectOutputRegex('/deprecated/');
-        // $this->expectError();
-        // $this->css = '';
         $msg = 'Deprecated Admin CSS';
         $this->adminCSS->setValue($this->CPT, $msg);
 
         $this->CPT->adminStyles();
-        // $this->expectErrorMessageMatches('/\$this->adminCSS/');
-        // d($error_log);
         $this->assertStringContainsString('$this->adminCSS', $error_log);
         $this->assertStringContainsString('wp-admin', $inline_styles[0]['handle']);
         $this->assertStringContainsString($msg, $inline_styles[0]['data']);
+    }
 
-        // d($inline_styles);
+    public function testPostsPerPageDeprecated()
+    {
+        global $error_log;
+        $this->CPT->postsPerPage([]);
+        $this->assertStringContainsString('The postsPerPage method is deprecated', $error_log);
+    }
+
+    public function testPostsPerPage()
+    {
+        global $is_admin, $wp_is_json_request;
+        $wp_is_json_request = false;
+        $is_admin = false;
+        $posts_per_page = -1;
+
+        $mock = $this->getMockBuilder(\WP_Query::class)
+            ->addMethods(['set'])
+            ->getMock();
+
+        $mock
+            ->expects($this->once())
+            ->method('set')
+            ->with('posts_per_page', $posts_per_page);
+        $mock->posts_per_page = $posts_per_page;
+        $mock->query_vars = ['post_type' => $this->CPT->type];
+
+        $this->CPT->posts_per_page = $posts_per_page;
+        $this->CPT->postsPerPage($mock);
+        $this->assertEquals($posts_per_page, $mock->posts_per_page);
+    }
+
+    public function testRemoveDateMenu() {
+        $actual = $this->CPT->removeDateMenu(false, $this->CPT->type);
+        $this->assertTrue($actual);
+
+        $actual = $this->CPT->removeDateMenu(false, 'frog');
+        $this->assertFalse($actual);
     }
 }
