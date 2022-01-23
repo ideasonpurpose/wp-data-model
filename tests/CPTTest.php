@@ -4,6 +4,7 @@ namespace IdeasOnPurpose\WP;
 
 use PHPUnit\Framework\TestCase;
 use IdeasOnPurpose\WP\Test;
+use WP_Taxonomy;
 
 Test\Stubs::init();
 
@@ -35,10 +36,6 @@ final class CPTTest extends TestCase
         $this->css = $this->Ref->getProperty('css');
         $this->css->setAccessible(true);
         $this->css->setValue($this->CPT, '');
-
-        $this->adminCSS = $this->Ref->getProperty('adminCSS');
-        $this->adminCSS->setAccessible(true);
-        $this->adminCSS->setValue($this->CPT, '');
     }
 
     public function testRegister()
@@ -61,20 +58,6 @@ final class CPTTest extends TestCase
         $this->assertStringContainsString('/* START', $inline_styles[0]['data']);
     }
 
-    public function testAdminStylesDeprecated()
-    {
-        global $inline_styles, $error_log;
-        $inline_styles = [];
-
-        $msg = 'Deprecated Admin CSS';
-        $this->adminCSS->setValue($this->CPT, $msg);
-
-        $this->CPT->adminStyles();
-        $this->assertStringContainsString('$this->adminCSS', $error_log);
-        $this->assertStringContainsString('wp-admin', $inline_styles[0]['handle']);
-        $this->assertStringContainsString($msg, $inline_styles[0]['data']);
-    }
-
     public function testRemoveDateMenu()
     {
         $actual = $this->CPT->removeDateMenu(false, $this->CPT->type);
@@ -82,5 +65,51 @@ final class CPTTest extends TestCase
 
         $actual = $this->CPT->removeDateMenu(false, 'frog');
         $this->assertFalse($actual);
+    }
+
+    public function testFilterByTaxonomy()
+    {
+        global $typenow, $taxonomies;
+        $typenow = $this->CPT->type;
+        $taxonomies['topic'] = new WP_Taxonomy();
+        $this->CPT->filterByTaxonomy('topic');
+        $this->expectOutputRegex('/<select/');
+        $this->expectOutputRegex('/<option/');
+        $this->expectOutputRegex('/\/option><option /');
+    }
+
+    public function testFilterByTaxonomySelected()
+    {
+        global $typenow, $taxonomies;
+        $typenow = $this->CPT->type;
+        $taxonomies['topic'] = new WP_Taxonomy();
+        $mockTerms = get_terms('topic');
+        $_GET['topic'] = $mockTerms[0]->slug;
+        $this->CPT->filterByTaxonomy('topic');
+        $this->expectOutputRegex('/selected="selected"/');
+    }
+
+    public function testFilterByTaxonomyNoTypenow()
+    {
+        unset($GLOBALS['typenow']);
+        $this->CPT->filterByTaxonomy('topic1');
+        $this->expectOutputString('');
+    }
+
+    public function testFilterByTaxonomyNoTypenowMatch()
+    {
+        global $typenow;
+        $typenow = 'bird';
+        $this->CPT->filterByTaxonomy('topic2');
+        $this->expectOutputString('');
+    }
+
+    public function testFilterByTaxonomyNoTaxonomy()
+    {
+        global $typenow;
+        $typenow = $this->CPT->type;
+        $actual = $this->CPT->filterByTaxonomy('topic3');
+        $this->expectOutputString('');
+        $this->assertNull($actual);
     }
 }

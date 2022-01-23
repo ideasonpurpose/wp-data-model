@@ -23,12 +23,9 @@ abstract class CPT
     public function __construct($menu_index = 21)
     {
         $this->menu_index = $menu_index;
-
         $this->props();
 
         add_action('init', [$this, 'register']);
-        add_action('init', [$this, 'addQueryVars']);
-
         add_action('admin_enqueue_scripts', [$this, 'adminStyles'], 100);
     }
 
@@ -88,16 +85,6 @@ abstract class CPT
     }
 
     /**
-     * @deprecated Renaming this to $this->css
-     * @var $adminCSS A blob of CPT-specific CSS.
-     * Rules should probably start with `.post-type-$this->type` so
-     * selectors remain specific to the defined post_type.
-     *
-     * TODO: This should be an empty string
-     */
-    protected $adminCSS = '';
-
-    /**
      * @var $css A blob of CPT- or Taxonomy-specific CSS styles.
      * Static rules can be defined directly in the child class, but PHP requires
      * anything dynamic be assembled by a method.
@@ -113,11 +100,6 @@ abstract class CPT
      */
     public function adminStyles()
     {
-        if (!empty($this->adminCSS)) {
-            //TODO: Replace with common Error Reporter (when it exists)
-            new Error('The $this->adminCSS property is deprecated. Use $this->css instead.');
-            wp_add_inline_style('wp-admin', $this->adminCSS);
-        }
         if (!empty($this->css)) {
             $cssComment = "\n    /* %s " . get_class($this) . " inline CSS */\n";
             $css = sprintf("$cssComment\n%s\n$cssComment", 'START', $this->css, 'END');
