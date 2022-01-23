@@ -109,7 +109,7 @@ Lambda function updates must be manually triggered by calling `npm run lambda:de
 
 - The **wp-update-handler** lambda function lives in AWS region **`us-east-2`**.
 - AWS lambda functions run on node v14, run `nvm use 14` before `npm install` to ensure package compatibility.
-- AWS Credentials should be created from **IAM > Users > Secuirty Credentials** for user **iop-cams**. Duplicate **.env.sample** and update the values in that file
+- AWS Credentials should be created from **IAM > Users > Security Credentials** for user **iop-cams**. Duplicate **.env.sample** and update the values in that file
 - AWS API-Gateway now references the lambda using `$LATEST` instead of a published version to make deploying updates simpler. The **Lambda Function** setting is found in the API Gateway Resource's POST - Integration Request options
 - Use this link to switch to the correct organization account role: [AWS Login](https://signin.aws.amazon.com/switchrole?roleName=OrganizationAccountAccessRole&account=iop003&displayName=IOP&color=B7CA9D)
 
@@ -238,11 +238,15 @@ Default labels can be extracted from WordPress by dumping the global `$wp_post_t
 ];
 ```
 
+<!-- START IOP CREDIT BLURB -->
+
 ## &nbsp;
 
 #### Brought to you by IOP
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/IOP_monogram_circle_512x512_mint.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
+
+<!-- END IOP CREDIT BLURB -->
 
 [iop]: https://www.ideasonpurpose.com
 [wp-update]: https://1q32dgotuh.execute-api.us-east-2.amazonaws.com/production
