@@ -18,6 +18,7 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
 
 /**
  * @covers \IdeasOnPurpose\WP\CPT
+ * @covers \IdeasOnPurpose\WP\DataModel
  * @covers \IdeasOnPurpose\WP\Error
  */
 final class CPTTest extends TestCase
@@ -73,9 +74,11 @@ final class CPTTest extends TestCase
         $typenow = $this->CPT->type;
         $taxonomies['topic'] = new WP_Taxonomy();
         $this->CPT->filterByTaxonomy('topic');
-        $this->expectOutputRegex('/<select/');
-        $this->expectOutputRegex('/<option/');
-        $this->expectOutputRegex('/\/option><option /');
+        $actual = $this->getActualOutput();
+        $this->assertStringContainsString('<select', $actual);
+        $this->assertStringContainsString('<option', $actual);
+        $this->assertStringNotContainsString('disabled', $actual);
+        $this->expectOutputRegex('/\/option>\s+<option /');
     }
 
     public function testFilterByTaxonomySelected()
@@ -89,14 +92,29 @@ final class CPTTest extends TestCase
         $this->expectOutputRegex('/selected="selected"/');
     }
 
-    public function testFilterByTaxonomyNoTypenow()
+    public function testFilterByTaxonomy_NoTerms()
+    {
+        global $typenow, $taxonomies, $get_terms;
+        $typenow = $this->CPT->type;
+        $taxonomies['topic'] = new WP_Taxonomy();
+        $no_terms_label = $taxonomies['topic']->labels->no_terms;
+        $get_terms = [];
+        $this->CPT->filterByTaxonomy('topic');
+        $actual = $this->getActualOutput();
+        $this->assertStringContainsString($no_terms_label, $actual);
+        $this->assertStringContainsString('disabled', $actual);
+        $this->expectOutputRegex('/<select/');
+        unset($GLOBALS['get_terms']);
+    }
+
+    public function testFilterByTaxonomy_NoTypenow()
     {
         unset($GLOBALS['typenow']);
         $this->CPT->filterByTaxonomy('topic1');
         $this->expectOutputString('');
     }
 
-    public function testFilterByTaxonomyNoTypenowMatch()
+    public function testFilterByTaxonomy_NoTypenowMatch()
     {
         global $typenow;
         $typenow = 'bird';
@@ -104,12 +122,30 @@ final class CPTTest extends TestCase
         $this->expectOutputString('');
     }
 
-    public function testFilterByTaxonomyNoTaxonomy()
+    public function testFilterByTaxonomy_NoTaxonomy()
     {
         global $typenow;
         $typenow = $this->CPT->type;
         $actual = $this->CPT->filterByTaxonomy('topic3');
         $this->expectOutputString('');
         $this->assertNull($actual);
+    }
+
+    public function testFilterByTaxonomy_DeprecationNotice()
+    {
+        global $typenow, $actions;
+        $actions = [];
+        $typenow = $this->CPT->type;
+        $taxonomies['topic'] = new WP_Taxonomy();
+        $this->CPT->filterByTaxonomy('topic');
+        $actual = $this->getActualOutput();
+        $errors = all_added_actions();
+
+        $this->expectOutputRegex('/selected="selected"/');
+        $this->assertStringContainsString('<select', $actual);
+        $this->assertStringContainsString('<option', $actual);
+        $this->assertCount(1, $actions);
+        $this->assertContains('wp_head', $errors[0]);
+        $this->assertStringContainsString('deprecated', $actions[0]['action'][0]->msg);
     }
 }

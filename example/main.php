@@ -65,6 +65,21 @@ class DataModel extends WP\DataModel
         ];
 
         /**
+         * Add taxonomy filter to post_types admin screen
+         *
+         * This can be a duplicate of the $this->taxonomyMap, or an array using the
+         * same taxonomy-key to  post_types-array values.
+         *
+         *    [
+         *        'taxonomy_slug' => ['post_type_slug', 'post_type_slug']
+         *    ];
+         */
+        $this->taxonomyFilterMap = [
+            'post_tag' => ['news'],
+            'topic' => ['post', 'news'],
+        ];
+
+        /**
          * Set separators for the WordPress admin. Separators will be added after any matching menu_indexes.
          */
         new WP\Admin\Separators(20, 21);

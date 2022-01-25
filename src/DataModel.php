@@ -41,6 +41,7 @@ abstract class DataModel
          */
         add_action('init', [$this, 'register'], 5);
         add_action('init', [$this, 'parseTaxonomyMap'], 100);
+        add_action('restrict_manage_posts', [$this, 'parseTaxonomyFilterMap']);
 
         /**
          * Set all Taxonomies and CPTs to be visible by default in the nav-menu admin
@@ -75,6 +76,64 @@ abstract class DataModel
                 register_taxonomy_for_object_type($tax, $type);
             }
         }
+    }
+
+    public $taxonomyFilterMap = [];
+    public function parseTaxonomyFilterMap()
+    {
+        global $typenow;
+
+        foreach ($this->taxonomyFilterMap as $tax_name => $types) {
+            if ($typenow == $types || in_array($typenow, $types)) {
+                d('got one!');
+                $this->injectTaxonomyFilterMenu($tax_name);
+                // self::injectTaxonomyFilterMenu($tax_name);
+                break;
+            }
+        }
+        // First, invert the map to get a post_type-to-taxonomy map
+        $typeTaxMap = [];
+        foreach ($this->taxonomyFilterMap as $tax => $post_types) {
+            foreach ((array) $post_types as $post_type) {
+                $typeTaxMap[$post_type][] = $tax;
+            }
+        }
+        d($typeTaxMap);
+    }
+
+    /**
+     * Inject a dropdown filter into the Wordpress admin
+     *
+     * TODO: This doesn't need to be static
+     * @param mixed $tax_name
+     * @return void
+     */
+    public static function injectTaxonomyFilterMenu($tax_name)
+    {
+        $tax = get_taxonomy($tax_name);
+        if (!$tax) {
+            return;
+        }
+        $terms = get_terms($tax_name);
+
+        $options = array_map(function ($term) use ($tax_name) {
+            $template = '<option value="%s"%s>%s (%d)</option>';
+            $selected =
+                isset($_GET[$tax_name]) && $_GET[$tax_name] == $term->slug
+                    ? ' selected="selected"'
+                    : '';
+            return sprintf($template, $term->slug, $selected, $term->name, $term->count);
+        }, $terms);
+
+        $firstOption = empty($options)
+            ? "<option value='' disabled>{$tax->labels->no_terms}</option>"
+            : "<option value=''>{$tax->labels->all_items}</option>";
+
+        array_unshift($options, $firstOption);
+
+        echo "<select name='$tax_name' id='$tax_name' class='postform'>\n";
+        echo implode("\n", $options);
+        echo "\n</select>";
     }
 
     private static function updateLabels($labelBase, $labels, $inflect = true)
