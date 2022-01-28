@@ -25,7 +25,8 @@ final class DataModelTest extends TestCase
     {
         unset($GLOBALS['get_terms']);
         unset($GLOBALS['typenow']);
-        // unset($GLOBALS['wp_dropdown_categories']);
+        unset($GLOBALS['taxonomies']);
+        unset($GLOBALS['wp_dropdown_categories']);
     }
 
     public function testParseTaxonomyMap()
@@ -59,6 +60,7 @@ final class DataModelTest extends TestCase
         $type = 'Test-Type-MatchArray';
         $typenow = $type;
 
+        $wp_dropdown_categories = [];
         $taxonomies[$tax] = new WP_Taxonomy($tax);
 
         /** @var \IdeasOnPurpose\WP\DataModel $DataModel */
@@ -66,15 +68,34 @@ final class DataModelTest extends TestCase
         $DataModel->parseTaxonomyFilterMap();
 
         $this->assertCount(1, $wp_dropdown_categories);
-        d($wp_dropdown_categories);
+    }
 
+    public function testParseTaxonomyFilterMap_matchTypesString2()
+    {
+        global $typenow, $taxonomies, $wp_dropdown_categories;
+
+        $DataModel = $this->getMockBuilder(DataModel::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['register'])
+            ->getMock();
+
+        $tax = 'Test-Tax-MatchString2';
+        $type = 'Test-Type-MatchString2';
+        $typenow = $type;
+
+        $wp_dropdown_categories = [];
+        $taxonomies[$tax] = new WP_Taxonomy($tax);
+
+        /** @var \IdeasOnPurpose\WP\DataModel $DataModel */
+        $DataModel->taxonomyFilterMap = [$tax => $type];
+        $DataModel->parseTaxonomyFilterMap();
+
+        $this->assertCount(1, $wp_dropdown_categories);
     }
 
     public function testParseTaxonomyFilterMap_matchTypesString()
     {
-        global $typenow, $wp_dropdown_categories;
-
-        $wp_dropdown_categories = [];
+        global $typenow, $taxonomies, $wp_dropdown_categories;
 
         $DataModel = $this->getMockBuilder(DataModel::class)
             ->disableOriginalConstructor()
@@ -85,12 +106,15 @@ final class DataModelTest extends TestCase
         $type = 'Test-Type-MatchString';
         $typenow = $type;
 
+        $wp_dropdown_categories = [];
+        $taxonomies[$tax] = new WP_Taxonomy($tax);
+
         /** @var \IdeasOnPurpose\WP\DataModel $DataModel */
-        $DataModel->taxonomyFilterMap = [$tax => $type];
+        $DataModel->taxonomyFilterMap = [$tax =>  $type];
         $DataModel->parseTaxonomyFilterMap();
 
+        // d($wp_dropdown_categories, $type, $tax);
         $this->assertCount(1, $wp_dropdown_categories);
-        d($wp_dropdown_categories);
     }
 
     public function testParseTaxonomyFilterMap_mismatchTypesString()
