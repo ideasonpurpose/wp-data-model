@@ -220,13 +220,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ideasonpurpose/wp-test-stubs.git",
-                "reference": "0e28a510db8a67d67e279ba05f39dca7189bb3a0"
+                "reference": "b3bd7bb105b8e7148b3bd54f46f9d161d772822d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ideasonpurpose/wp-test-stubs/zipball/0e28a510db8a67d67e279ba05f39dca7189bb3a0",
-                "reference": "0e28a510db8a67d67e279ba05f39dca7189bb3a0",
+                "url": "https://api.github.com/repos/ideasonpurpose/wp-test-stubs/zipball/b3bd7bb105b8e7148b3bd54f46f9d161d772822d",
+                "reference": "b3bd7bb105b8e7148b3bd54f46f9d161d772822d",
                 "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0.0"
             },
             "default-branch": true,
             "type": "library",
@@ -253,7 +256,7 @@
                 "issues": "https://github.com/ideasonpurpose/wp-test-stubs/issues",
                 "source": "https://github.com/ideasonpurpose/wp-test-stubs/tree/main"
             },
-            "time": "2022-01-28T02:56:44+00:00"
+            "time": "2022-01-28T20:15:32+00:00"
         },
         {
             "name": "kint-php/kint",
