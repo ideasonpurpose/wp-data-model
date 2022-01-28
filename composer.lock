@@ -220,12 +220,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ideasonpurpose/wp-test-stubs.git",
-                "reference": "0fd4cbc83d0ad724fd3e4f95a334f3b8408cd5cb"
+                "reference": "0e28a510db8a67d67e279ba05f39dca7189bb3a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ideasonpurpose/wp-test-stubs/zipball/0fd4cbc83d0ad724fd3e4f95a334f3b8408cd5cb",
-                "reference": "0fd4cbc83d0ad724fd3e4f95a334f3b8408cd5cb",
+                "url": "https://api.github.com/repos/ideasonpurpose/wp-test-stubs/zipball/0e28a510db8a67d67e279ba05f39dca7189bb3a0",
+                "reference": "0e28a510db8a67d67e279ba05f39dca7189bb3a0",
                 "shasum": ""
             },
             "default-branch": true,
@@ -253,7 +253,7 @@
                 "issues": "https://github.com/ideasonpurpose/wp-test-stubs/issues",
                 "source": "https://github.com/ideasonpurpose/wp-test-stubs/tree/main"
             },
-            "time": "2022-01-18T22:30:07+00:00"
+            "time": "2022-01-28T02:56:44+00:00"
         },
         {
             "name": "kint-php/kint",
@@ -1098,16 +1098,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.11",
+            "version": "9.5.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2406855036db1102126125537adb1406f7242fdd"
+                "reference": "597cb647654ede35e43b137926dfdfef0fb11743"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2406855036db1102126125537adb1406f7242fdd",
-                "reference": "2406855036db1102126125537adb1406f7242fdd",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/597cb647654ede35e43b137926dfdfef0fb11743",
+                "reference": "597cb647654ede35e43b137926dfdfef0fb11743",
                 "shasum": ""
             },
             "require": {
@@ -1185,7 +1185,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.11"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.13"
             },
             "funding": [
                 {
@@ -1197,7 +1197,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-12-25T07:07:57+00:00"
+            "time": "2022-01-24T07:33:35+00:00"
         },
         {
             "name": "sebastian/cli-parser",
