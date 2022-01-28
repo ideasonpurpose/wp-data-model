@@ -1,6 +1,6 @@
 # wp-data-model
 
-#### Version 0.6.0
+#### Version 0.7.0
 
 Base package for building data model plugins for WordPress sites at [Ideas On Purpose](https://www.ideasonpurpose.com).
 
