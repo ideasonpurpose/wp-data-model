@@ -55,8 +55,8 @@ final class DataModelTest extends TestCase
             ->onlyMethods(['register'])
             ->getMock();
 
-        $tax = 'Test-Tax';
-        $type = 'Test-Type';
+        $tax = 'Test-Tax-MatchArray';
+        $type = 'Test-Type-MatchArray';
         $typenow = $type;
 
         $taxonomies[$tax] = new WP_Taxonomy($tax);
@@ -66,6 +66,8 @@ final class DataModelTest extends TestCase
         $DataModel->parseTaxonomyFilterMap();
 
         $this->assertCount(1, $wp_dropdown_categories);
+        d($wp_dropdown_categories);
+
     }
 
     public function testParseTaxonomyFilterMap_matchTypesString()
@@ -79,15 +81,16 @@ final class DataModelTest extends TestCase
             ->onlyMethods(['register'])
             ->getMock();
 
-        $tax = 'Test-Tax';
-        $type = 'Test-Type';
+        $tax = 'Test-Tax-MatchString';
+        $type = 'Test-Type-MatchString';
         $typenow = $type;
 
         /** @var \IdeasOnPurpose\WP\DataModel $DataModel */
         $DataModel->taxonomyFilterMap = [$tax => $type];
         $DataModel->parseTaxonomyFilterMap();
 
-        $this->assertCount(0, $wp_dropdown_categories);
+        $this->assertCount(1, $wp_dropdown_categories);
+        d($wp_dropdown_categories);
     }
 
     public function testParseTaxonomyFilterMap_mismatchTypesString()
