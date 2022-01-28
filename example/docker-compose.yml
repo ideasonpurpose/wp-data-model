@@ -2,8 +2,7 @@ services:
   # Utility service for running composer, provides a local volume for storing access tokens
   # Image from: https://hub.docker.com/_/composer
   composer:
-    image: composer:2.1.9
-    image: composer
+    image: composer:2.2.4
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       COMPOSER_HOME: /.composer
@@ -12,11 +11,12 @@ services:
       - ~/.composer:/.composer
     command: install
 
+# https://hub.docker.com/r/realguess/jq
   wp-tested:
     image: realguess/jq:1.4
     volumes:
       - ./:/app
     command: |
-      sh -c "cat /app/package.json | jq '{homepage: .homepage}' > /tmp/homepage.json &&
-             wget -q -O- http://api.wordpress.org/core/stable-check/1.0 | jq 'to_entries[] | {tested: select(.value == \"latest\").key}' > /tmp/tested.json &&
-             jq -s '.[0] * .[1]'  /tmp/homepage.json /tmp/tested.json > /app/assets/metadata.json"
+      sh -c " cat /app/package.json | jq '{homepage: .homepage}' > /tmp/homepage.json &&
+              wget -q -O- http://api.wordpress.org/core/stable-check/1.0 | jq 'to_entries[] | {tested: select(.value == \"latest\").key}' > /tmp/tested.json &&
+              jq -s '.[0] * .[1]'  /tmp/homepage.json /tmp/tested.json > /app/assets/metadata.json"

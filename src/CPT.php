@@ -40,43 +40,11 @@ abstract class CPT
         register_post_type($this->type, $this->args);
     }
 
-    /**
-     * @var $typenow is a strange WordPress global used on admin pages, usually set from post_type
-     */
     public function filterByTaxonomy($slug)
     {
         new Error(
-            'CPT::filterByTaxonomy() is deprecated. Taxonomy filters should be assigned to post_types using DataMode::taxonomyFilterMap instead.'
+            'CPT::filterByTaxonomy() was moved to DataModel, assign Taxonomy filters to post_types using DataModel::taxonomyFilterMap instead.'
         );
-
-        global $typenow;
-        if ($typenow !== $this->type) {
-            return;
-        }
-
-        DataModel::injectTaxonomyFilterMenu($slug);
-        return;
-
-        // $tax = get_taxonomy($slug);
-        // if (!$tax) {
-        //     return;
-        // }
-        // $terms = get_terms($slug);
-        // $options = array_map(function ($term) use ($slug) {
-        //     $template = '<option value="%s"%s>%s (%d)</option>';
-        //     $selected =
-        //         isset($_GET[$slug]) && $_GET[$slug] == $term->slug ? ' selected="selected"' : '';
-        //     return sprintf($template, $term->slug, $selected, $term->name, $term->count);
-        // }, $terms);
-
-        // $firstOption = empty($options)
-        //     ? "<option value='' disabled>{$tax->labels->no_terms}</option>"
-        //     : "<option value=''>{$tax->labels->all_items}</option>";
-        // array_unshift($options, $firstOption);
-
-        // echo "<select name='$slug' id='$slug' class='postform'>\n";
-        // echo implode("\n", $options);
-        // echo "\n</select>";
     }
 
     /**

@@ -68,7 +68,7 @@ abstract class DataModel
      *        'post_tag' => ['project', 'person'],
      *    ];
      */
-    protected $taxonomyMap = [];
+    public $taxonomyMap = [];
     public function parseTaxonomyMap()
     {
         foreach ($this->taxonomyMap as $tax => $types) {
@@ -81,34 +81,26 @@ abstract class DataModel
     public $taxonomyFilterMap = [];
     public function parseTaxonomyFilterMap()
     {
+        /**
+         * @var $typenow is a WordPress global used on admin pages, assigned from post_type
+         */
         global $typenow;
 
         foreach ($this->taxonomyFilterMap as $tax_name => $types) {
-            if ($typenow == $types || in_array($typenow, $types)) {
-                d('got one!');
+            if (in_array($typenow, (array) $types)) {
                 $this->injectTaxonomyFilterMenu($tax_name);
-                // self::injectTaxonomyFilterMenu($tax_name);
                 break;
             }
         }
-        // First, invert the map to get a post_type-to-taxonomy map
-        $typeTaxMap = [];
-        foreach ($this->taxonomyFilterMap as $tax => $post_types) {
-            foreach ((array) $post_types as $post_type) {
-                $typeTaxMap[$post_type][] = $tax;
-            }
-        }
-        d($typeTaxMap);
     }
 
     /**
      * Inject a dropdown filter into the Wordpress admin
      *
-     * TODO: This doesn't need to be static
      * @param mixed $tax_name
      * @return void
      */
-    public static function injectTaxonomyFilterMenu($tax_name)
+    public function injectTaxonomyFilterMenu($tax_name)
     {
         $tax = get_taxonomy($tax_name);
         if (!$tax) {
