@@ -25,7 +25,7 @@ final class DataModelTest extends TestCase
     {
         unset($GLOBALS['get_terms']);
         unset($GLOBALS['typenow']);
-        unset($GLOBALS['wp_dropdown_categories']);
+        // unset($GLOBALS['wp_dropdown_categories']);
     }
 
     public function testParseTaxonomyMap()
@@ -72,6 +72,8 @@ final class DataModelTest extends TestCase
     {
         global $typenow, $wp_dropdown_categories;
 
+        $wp_dropdown_categories = [];
+
         $DataModel = $this->getMockBuilder(DataModel::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['register'])
@@ -85,12 +87,14 @@ final class DataModelTest extends TestCase
         $DataModel->taxonomyFilterMap = [$tax => $type];
         $DataModel->parseTaxonomyFilterMap();
 
-        $this->assertNull($wp_dropdown_categories);
+        $this->assertCount(0, $wp_dropdown_categories);
     }
 
     public function testParseTaxonomyFilterMap_mismatchTypesString()
     {
         global $typenow, $wp_dropdown_categories;
+
+        $wp_dropdown_categories = [];
 
         $DataModel = $this->getMockBuilder(DataModel::class)
             ->disableOriginalConstructor()
@@ -105,12 +109,15 @@ final class DataModelTest extends TestCase
         $DataModel->taxonomyFilterMap = [$tax => 'frog'];
         $DataModel->parseTaxonomyFilterMap();
 
-        $this->assertNull($wp_dropdown_categories);
+        $this->assertCount(0, $wp_dropdown_categories);
     }
 
     public function testParseTaxonomyFilterMap_noTypeNowMatch()
     {
-        global $typenow;
+        global $typenow, $wp_dropdown_categories;
+
+        $wp_dropdown_categories = [];
+
         $DataModel = $this->getMockBuilder(DataModel::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['register'])
@@ -121,11 +128,15 @@ final class DataModelTest extends TestCase
         /** @var \IdeasOnPurpose\WP\DataModel $DataModel */
         $DataModel->taxonomyFilterMap = ['dog' => 'Stella'];
         $DataModel->parseTaxonomyFilterMap();
-        $this->expectOutputString('');
+        $this->assertCount(0, $wp_dropdown_categories);
     }
 
     public function testParseTaxonomyFilterMap_noTypeNow()
     {
+        global $wp_dropdown_categories;
+
+        $wp_dropdown_categories = [];
+
         $DataModel = $this->getMockBuilder(DataModel::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['register'])
@@ -134,5 +145,7 @@ final class DataModelTest extends TestCase
         /** @var \IdeasOnPurpose\WP\DataModel $DataModel */
         $DataModel->parseTaxonomyFilterMap();
         $this->expectOutputString('');
+
+        $this->assertCount(0, $wp_dropdown_categories);
     }
 }
