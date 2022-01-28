@@ -86,46 +86,28 @@ abstract class DataModel
          */
         global $typenow;
 
+        $taxMenus = [];
+
         foreach ($this->taxonomyFilterMap as $tax_name => $types) {
             if (in_array($typenow, (array) $types)) {
-                $this->injectTaxonomyFilterMenu($tax_name);
-                break;
+                $taxMenus[] = get_taxonomy($tax_name);
             }
         }
-    }
+        $taxMenus = array_filter($taxMenus);
 
-    /**
-     * Inject a dropdown filter into the Wordpress admin
-     *
-     * @param mixed $tax_name
-     * @return void
-     */
-    public function injectTaxonomyFilterMenu($tax_name)
-    {
-        $tax = get_taxonomy($tax_name);
-        if (!$tax) {
-            return;
+        foreach ($taxMenus as $tax) {
+            wp_dropdown_categories([
+                'option_none_value' => '',
+                'show_option_none' => $tax->labels->all_items,
+                'name' => $tax->query_var,
+                'taxonomy' => [$tax->name],
+                'orderby' => 'name',
+                'selected' => @$_GET[$tax->query_var],
+                'hierarchical' => $tax->hierarchical,
+                'depth' => 3,
+                'value_field' => 'slug',
+            ]);
         }
-        $terms = get_terms($tax_name);
-
-        $options = array_map(function ($term) use ($tax_name) {
-            $template = '<option value="%s"%s>%s (%d)</option>';
-            $selected =
-                isset($_GET[$tax_name]) && $_GET[$tax_name] == $term->slug
-                    ? ' selected="selected"'
-                    : '';
-            return sprintf($template, $term->slug, $selected, $term->name, $term->count);
-        }, $terms);
-
-        $firstOption = empty($options)
-            ? "<option value='' disabled>{$tax->labels->no_terms}</option>"
-            : "<option value=''>{$tax->labels->all_items}</option>";
-
-        array_unshift($options, $firstOption);
-
-        echo "<select name='$tax_name' id='$tax_name' class='postform'>\n";
-        echo implode("\n", $options);
-        echo "\n</select>";
     }
 
     private static function updateLabels($labelBase, $labels, $inflect = true)
