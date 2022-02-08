@@ -9,13 +9,7 @@
       ]
     }
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/ideasonpurpose/wp-data-model"
-    }
-  ],
   "require": {
-    "ideasonpurpose/wp-data-model": "^0.4.0"
+    "ideasonpurpose/wp-data-model": "0.7.1"
   }
 }
