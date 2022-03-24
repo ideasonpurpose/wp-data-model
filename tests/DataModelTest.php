@@ -27,6 +27,7 @@ final class DataModelTest extends TestCase
         unset($GLOBALS['typenow']);
         unset($GLOBALS['taxonomies']);
         unset($GLOBALS['wp_dropdown_categories']);
+        unset($GLOBALS['register_taxonomy_for_object_type']);
     }
 
     public function testParseTaxonomyMap()
@@ -39,6 +40,7 @@ final class DataModelTest extends TestCase
             ->onlyMethods(['register'])
             ->getMock();
 
+        $DataModel->taxonomyMap = ['test' => ['type0', 'type1']];
         $DataModel->taxonomyMap = ['test' => ['type0', 'type1']];
         $DataModel->parseTaxonomyMap();
 
@@ -150,5 +152,31 @@ final class DataModelTest extends TestCase
         $this->expectOutputString('');
 
         $this->assertCount(0, $wp_dropdown_categories);
+    }
+
+    public function testParseTaxonomyFilterMap_matchTwoPostTypesArray()
+    {
+        global $typenow, $taxonomies, $wp_dropdown_categories;
+
+        $DataModel = $this->getMockBuilder(DataModel::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['register'])
+            ->getMock();
+
+        $tax = 'Test-Tax-MatchArray';
+        $tax2 = 'Test-Tax2-MatchArray';
+        $type = 'Test-Type-MatchArray';
+        $typenow = $type;
+
+        $wp_dropdown_categories = [];
+        $taxonomies[$tax] = new WP_Taxonomy($tax);
+        $taxonomies[$tax2] = new WP_Taxonomy($tax2);
+
+        /** @var \IdeasOnPurpose\WP\DataModel $DataModel */
+        $DataModel->taxonomyFilterMap = [$tax => ['type0', $type], $tax2 => [$type]];
+        $DataModel->parseTaxonomyFilterMap();
+
+        d($wp_dropdown_categories);
+        $this->assertCount(2, $wp_dropdown_categories);
     }
 }
