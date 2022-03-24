@@ -20,7 +20,6 @@
 
     <php>
         <const name="WP_DEBUG" value="true"/>
-
     </php>
     <coverage cacheDirectory=".phpunit.cache/code-coverage"
               processUncoveredFiles="true">

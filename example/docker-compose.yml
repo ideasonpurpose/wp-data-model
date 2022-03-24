@@ -1,8 +1,8 @@
 services:
   # Utility service for running composer, provides a local volume for storing access tokens
-  # Image from: https://hub.docker.com/_/composer
+  # https://hub.docker.com/_/composer
   composer:
-    image: composer:2.2.4
+    image: composer:2
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       COMPOSER_HOME: /.composer
@@ -11,7 +11,7 @@ services:
       - ~/.composer:/.composer
     command: install
 
-# https://hub.docker.com/r/realguess/jq
+  # https://hub.docker.com/r/realguess/jq
   wp-tested:
     image: realguess/jq:1.4
     volumes:
