@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name:       example Data Model
+ * Plugin Name:       Example Data Model
  * Plugin URI:        https://www.github.com/ideasonpurpose
  * Description:       Custom Post Types and Taxonomies for the Example website.
  * Version:           0.1.0
- * Requires at least: 5.2
- * Requires PHP:      7.2
+ * Requires at least: 6
+ * Requires PHP:      8
  * Author:            Ideas On Purpose
  * Author URI:        https://www.ideasonpurpose.com
  */
@@ -21,10 +21,8 @@ class DataModel extends WP\DataModel
         /**
          * Custom Taxonomies
          *
-         * Each Taxonomy may be declared with a list of post_type slugs to be
-         * associated with.
-         *
          * Taxonomies will appear in declaration order, so define them by importance.
+         *
          */
         new Taxonomy\Topic();
 
@@ -65,10 +63,10 @@ class DataModel extends WP\DataModel
         ];
 
         /**
-         * Add taxonomy filter to post_types admin screen
+         * Add taxonomy filters to post_type admin screens
          *
          * This can be a duplicate of the $this->taxonomyMap, or an array using the
-         * same taxonomy-key to  post_types-array values.
+         * same taxonomy-key to post_types-array values.
          *
          *    [
          *        'taxonomy_slug' => ['post_type_slug', 'post_type_slug']
