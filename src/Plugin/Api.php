@@ -2,11 +2,19 @@
 
 namespace IdeasOnPurpose\WP\Plugin;
 
+/**
+ * This works, and has been working for a couple years, but it's a mess.
+ *
+ * Possible reference for refactoring:
+ * @link https://make.wordpress.org/core/2020/07/30/recommended-usage-of-the-updates-api-to-support-the-auto-updates-ui-for-plugins-and-themes-in-wordpress-5-5/
+ *
+ */
 class Api
 {
     public function __construct($plugin = null)
     {
         $this->plugin = $plugin;
+        $this->is_debug = defined('WP_DEBUG') && WP_DEBUG;
 
         register_activation_hook($this->plugin->__FILE__, [$this, 'activate']);
         register_deactivation_hook($this->plugin->__FILE__, [$this, 'deactivate']);
@@ -135,6 +143,18 @@ class Api
         $this->transient = "ideasonpurpose-update-check_{$this->plugin_id}";
     }
 
+    /**
+     * A bit of a mess: This checks the transient to see if the check has been
+     * performed. If the transient has expired, it queries the AWS endpoint
+     * and resets the transient.
+     *
+     * Yuck: All side-effects are on the main object, eg. $this->response
+     * which is then checked from $this->update() and $this->details()
+     *
+     * Very convoluted and hard to follow.
+     *
+     * @return void All side-effects :(
+     */
     public function updateCheck()
     {
         error_log('---- updateCheck');
@@ -144,7 +164,7 @@ class Api
         /**
          * Disable transients when WP_DEBUG is true
          */
-        if (WP_DEBUG === true) {
+        if ($this->is_debug === true) {
             $this->response = false;
         }
 
