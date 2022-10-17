@@ -1,7 +1,7 @@
 services:
   # https://hub.docker.com/_/composer
   composer:
-    image: composer:2
+    image: composer:2.4
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       COMPOSER_HOME: /.composer
@@ -13,13 +13,13 @@ services:
   # https://www.github.com/ideasonpurpose/docker-phpunit-watch
   test:
     # image: ideasonpurpose/phpunit-watch:dev
-    image: ideasonpurpose/phpunit-watch:0.1.5
+    image: ideasonpurpose/phpunit-watch:0.3.1
     volumes:
       - ./:/app
 
   # https://hub.docker.com/r/amazon/aws-cli
   aws:
-    image: amazon/aws-cli:2.2.46
+    image: amazon/aws-cli:2.8
     environment:
       AWS_ACCESS_KEY_ID:
       AWS_SECRET_ACCESS_KEY:
