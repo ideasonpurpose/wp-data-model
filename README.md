@@ -105,6 +105,12 @@ The **aws** directory contains the lambda function which handles update requests
 
 Lambda function updates must be manually triggered by calling `npm run lambda:deploy`.
 
+### Changelog, Description and Banners
+
+Assets should be stored in the project and be uploaded to a directory matching the plugin basename
+
+The **README.md** and **CHANGELOG.md** files will be used to populate details in the WordPress plugin admin interface. The Changelog is auto-generated.
+
 #### Notes
 
 - The **wp-update-handler** lambda function lives in AWS region **`us-east-2`**.
