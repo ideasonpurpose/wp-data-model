@@ -100,28 +100,136 @@ final class PluginApiTest extends TestCase
 
     public function testDetails()
     {
-        // $mockApi = $this->getMockBuilder(\IdeasOnPurpose\WP\Plugin\Api::class)
-        //     ->disableOriginalConstructor()
-        //     ->onlyMethods(['pluginInfo', 'updateCheck'])
-        //     ->getMock();
+        $mockApi = $this->getMockBuilder(\IdeasOnPurpose\WP\Plugin\Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo', 'updateCheck'])
+            ->getMock();
 
-        // $mockApi->expects($this->once())->method('pluginInfo');
-        // $mockApi->expects($this->once())->method('updateCheck');
-        // $slug = 'test_slug';
-        // $res = (object) [];
-        // $action = 'plugin_information';
-        // $args = (object) ['slug'=> $slug];
+        $mockApi->expects($this->once())->method('pluginInfo');
+        $mockApi->expects($this->once())->method('updateCheck');
 
-        // $Api = new $mockApi();
-        // $Api->plugin_slug = $slug;
-        // $actual = $Api->details($res, $action, $args);
-        // $this->assertObjectHasProperty('slug', $actual);
-        $this->assertTrue(true); // placeholder
+        $slug = 'test_slug';
+        $res = (object) [];
+        $action = 'plugin_information';
+        $args = (object) ['slug' => $slug];
+
+        $mockApi->plugin_slug = $slug;
+        $mockApi->response = (object) [
+            'tested' => 'mock tested',
+            'banners' => 'mock banners',
+            'new_version' => 'mock new_version',
+            'last_modified' => 'mock last_modified',
+            'package' => 'mock package',
+            'sections' => [],
+        ];
+        $mockApi->plugin_data = [
+            'Name' => 'mock name',
+            'Author' => 'mock author',
+            'RequiresWP' => 'mock requiresWP',
+            'PluginURI' => 'mock pluginURI',
+            'Description' => 'mock description',
+        ];
+        $actual = $mockApi->details($res, $action, $args);
+        $this->assertObjectHasProperty('slug', $actual);
+    }
+
+    /**
+     * The method should return the $result argument unchanged
+     * if $this->response is false
+     */
+    public function testDetails_skipped_false()
+    {
+        $mockApi = $this->getMockBuilder(\IdeasOnPurpose\WP\Plugin\Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo', 'updateCheck'])
+            ->getMock();
+
+        $mockApi->response = false;
+        $expected = 'expected';
+        $action = 'plugin_information';
+        $args = (object) ['slug' => 'slug'];
+
+        $actual = $mockApi->details($expected, $action, $args);
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * The method should return the $result argument unchanged
+     * if $action is anything but 'plugin_information'
+     */
+    public function testDetails_skipped_action()
+    {
+        $mockApi = $this->getMockBuilder(\IdeasOnPurpose\WP\Plugin\Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo', 'updateCheck'])
+            ->getMock();
+
+        $mockApi->response = 'not false';
+        $expected = 'expected';
+        $action = 'not plugin_information';
+        $args = (object) ['slug' => 'slug'];
+
+        $actual = $mockApi->details($expected, $action, $args);
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * The method should return the $result argument unchanged
+     * if $args->slug is not equal to $this->plugin_slug
+     */
+    public function testDetails_skipped_slug()
+    {
+        $mockApi = $this->getMockBuilder(\IdeasOnPurpose\WP\Plugin\Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo', 'updateCheck'])
+            ->getMock();
+
+        $mockApi->response = 'not false';
+        $mockApi->plugin_slug = 'not slug';
+        $expected = 'expected';
+        $action = 'plugin_information';
+        $args = (object) ['slug' => 'slug'];
+
+        $actual = $mockApi->details($expected, $action, $args);
+        $this->assertEquals($expected, $actual);
     }
 
     public function testUpdaterComplete()
     {
-        $this->assertTrue(true); // placeholder
+        global $transients;
+        $transients = [];
+        $mockApi = $this->getMockBuilder(\IdeasOnPurpose\WP\Plugin\Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo', 'updateCheck'])
+            ->getMock();
+
+        $mockApi->expects($this->exactly(2))->method('pluginInfo');
+
+        $plugin_id = 'plugin_id';
+        $mockApi->plugin_id = $plugin_id;
+        $mockApi->transient = 'mock transient';
+        $options = ['action' => 'update', 'type' => 'plugin', 'plugins' => [$plugin_id]];
+
+        // success
+        $mockApi->plugin_id = $plugin_id;
+        $mockApi->updaterComplete(null, $options);
+
+        /**
+         * No delete_transient call when plugin_id doesn't match
+         */
+        $mockApi->plugin_id = 'not plugin_id yet';
+        $mockApi->updaterComplete(null, $options);
+        $mockApi->plugin_id = $plugin_id; // reset
+
+        /**
+         * Do nothing when action is not 'update'
+         */
+        $options['action'] = 'not update';
+        $mockApi->updaterComplete(null, $options);
+
+        $this->assertNotEmpty($transients);
+        $this->assertEquals(1, count($transients));
+        $this->assertContains($mockApi->transient, end($transients));
     }
 
     public function testPluginInfo()
