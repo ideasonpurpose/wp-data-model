@@ -58,18 +58,18 @@
     ]
   },
   "devDependencies": {
-    "@prettier/plugin-php": "^0.19.1",
+    "@prettier/plugin-php": "^0.19.6",
     "archiver": "^5.3.1",
     "auto-changelog": "^2.4.0",
-    "aws-sdk": "^2.1233.0",
+    "aws-sdk": "^2.1421.0",
     "chokidar-cli": "^3.0.0",
-    "dotenv": "^16.0.3",
-    "filesize": "^10.0.5",
-    "fs-extra": "^10.1.0",
-    "jest": "^29.2.0",
+    "dotenv": "^16.3.1",
+    "filesize": "^10.0.7",
+    "fs-extra": "^11.1.1",
+    "jest": "^29.6.1",
     "prettier": "^2.7.1",
     "pretty-hrtime": "^1.0.3",
-    "version-everything": "^0.9.1"
+    "version-everything": "^0.9.3"
   },
   "auto-changelog": {
     "package": true,

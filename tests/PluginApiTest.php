@@ -79,7 +79,7 @@ final class PluginApiTest extends TestCase
 
         $actual = $this->Api->update($expected, 'action');
 
-        $this->assertObjectHasAttribute('response', $actual);
+        $this->assertObjectHasProperty('response', $actual);
         $this->assertArrayHasKey('key', $actual->response);
     }
 
@@ -95,7 +95,7 @@ final class PluginApiTest extends TestCase
 
     //     $actual = $this->Api->update($expected, 'action');
 
-    //     $this->assertObjectHasAttribute('response', $actual);
+    //     $this->assertObjectHasProperty('response', $actual);
     // }
 
     public function testDetails()
@@ -115,7 +115,7 @@ final class PluginApiTest extends TestCase
         // $Api = new $mockApi();
         // $Api->plugin_slug = $slug;
         // $actual = $Api->details($res, $action, $args);
-        // $this->assertObjectHasAttribute('slug', $actual);
+        // $this->assertObjectHasProperty('slug', $actual);
         $this->assertTrue(true); // placeholder
     }
 
@@ -127,16 +127,15 @@ final class PluginApiTest extends TestCase
     public function testPluginInfo()
     {
         $this->Api->pluginInfo();
-        $this->assertObjectHasAttribute('plugin_data', $this->Api);
-        $this->assertObjectHasAttribute('plugin_id', $this->Api);
-        $this->assertObjectHasAttribute('plugin_slug', $this->Api);
-        $this->assertObjectHasAttribute('transient', $this->Api);
+        $this->assertObjectHasProperty('plugin_data', $this->Api);
+        $this->assertObjectHasProperty('plugin_id', $this->Api);
+        $this->assertObjectHasProperty('plugin_slug', $this->Api);
+        $this->assertObjectHasProperty('transient', $this->Api);
     }
 
     public function testUpdateCheck_transientExists_debugTrue()
     {
-        global $transients, $is_wp_error, $wp_remote_post, $error_log;
-        // $is_wp_error = false;
+        global $transients, $wp_remote_post, $error_log;
 
         $expected = 'Response for testing';
         // $expected = (object) ['response' => ['key' => 'value']];
@@ -157,22 +156,19 @@ final class PluginApiTest extends TestCase
 
     public function testUpdateCheck_transientExists_debugFalse()
     {
-        // global $transients, $wp_remote_post, $error_log;
-
         $this->Api->is_debug = false;
         $this->Api->updateCheck();
 
         $this->assertIsObject($this->Api->response);
-        $this->assertObjectHasAttribute('url', $this->Api->response);
-        $this->assertObjectHasAttribute('args', $this->Api->response);
+        $this->assertObjectHasProperty('url', $this->Api->response);
+        $this->assertObjectHasProperty('args', $this->Api->response);
         $this->assertArrayHasKey('headers', $this->Api->response->args);
     }
 
     public function testUpdateCheck_transientExists_wpError()
     {
-        global $is_wp_error, $wp_remote_post, $error_message, $error_log;
+        global $wp_remote_post, $error_message, $error_log;
 
-        $is_wp_error = true;
         $wp_remote_post = new \WP_Error();
         $error_message = 'mock Error';
         $this->Api->updateCheck();
@@ -183,7 +179,7 @@ final class PluginApiTest extends TestCase
 
     public function testUpdateCheck_transientExists_responseCodeNot200()
     {
-        global $is_wp_error, $wp_remote_post, $error_log;
+        global $wp_remote_post, $error_log;
         $wp_remote_post = false;
         $wp_remote_post = wp_remote_post();
         $wp_remote_post['response']['code'] = 418; // I'm a teapot 🫖

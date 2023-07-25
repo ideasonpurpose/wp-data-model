@@ -14,13 +14,13 @@
     }
   ],
   "require": {
-    "doctrine/inflector": "2.0.4",
-    "ideasonpurpose/wp-admin-separators": "1.0.6"
+    "doctrine/inflector": "2.0.8",
+    "ideasonpurpose/wp-admin-separators": "1.0.8"
   },
   "require-dev": {
-    "kint-php/kint": "^4.1",
+    "kint-php/kint": "^5",
     "ideasonpurpose/wp-test-stubs": "dev-main",
-    "phpunit/phpunit": "^9.5"
+    "phpunit/phpunit": "^10.2"
   },
   "autoload": {
     "psr-4": {
