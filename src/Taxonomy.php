@@ -9,6 +9,10 @@ abstract class Taxonomy
      */
     abstract protected function props();
 
+    public $post_types;
+    public $slug;
+    public $args;
+
     public function __construct($post_types = null)
     {
         $this->props();

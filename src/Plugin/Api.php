@@ -11,6 +11,10 @@ namespace IdeasOnPurpose\WP\Plugin;
  */
 class Api
 {
+    public $plugin;
+    public $is_debug;
+    public $response;
+
     public function __construct($plugin = null)
     {
         $this->plugin = $plugin;
@@ -112,6 +116,7 @@ class Api
      * Following a successful update, this will clear the transient so the WordPress admin
      * interface stops
      */
+    public $transient;
     public function updaterComplete($upgrader_object, $options)
     {
         // If an update has taken place and the updated type is plugins and the plugins element exists
@@ -135,6 +140,9 @@ class Api
      *   $this->plugin_id = "njhi-data-model/main.php"
      *   $this->plugin_slug = "njhi-data-model"
      */
+    public $plugin_data;
+    public $plugin_id;
+    public $plugin_slug;
     public function pluginInfo()
     {
         $this->plugin_data = get_plugin_data($this->plugin->__FILE__);

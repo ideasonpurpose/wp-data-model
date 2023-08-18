@@ -23,6 +23,10 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
  */
 final class CPTTest extends TestCase
 {
+    public $CPT;
+    public $Ref;
+    public $css;
+
     protected function setUp(): void
     {
         /** @var \IdeasOnPurpose\WP\CPT $this->Taxonomy */

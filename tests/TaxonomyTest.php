@@ -12,6 +12,8 @@ Test\Stubs::init();
  */
 final class TaxonomyTest extends TestCase
 {
+
+    public $Taxonomy;
     protected function setUp(): void
     {
         /** @var \IdeasOnPurpose\WP\Taxonomy $this->Taxonomy */

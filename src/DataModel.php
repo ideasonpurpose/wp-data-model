@@ -13,6 +13,9 @@ abstract class DataModel
      */
     abstract protected function register();
 
+    public $__FILE__;
+    public $map;
+
     public function __construct()
     {
         /**

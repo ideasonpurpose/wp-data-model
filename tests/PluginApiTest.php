@@ -20,6 +20,10 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
  */
 final class PluginApiTest extends TestCase
 {
+
+    public $Api;
+    public $plugin;
+
     protected function setUp(): void
     {
         global $flush_rewrite_rules, $error_log, $is_wp_error;

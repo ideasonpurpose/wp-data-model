@@ -15,7 +15,9 @@ abstract class CPT
      */
     abstract protected function props();
 
-    protected $menu_index;
+    public $menu_index;
+    public $type;
+    public $args;
     /**
      * Default value for $menu_index is 21, "below Pages"
      * https://codex.wordpress.org/Function_Reference/register_post_type#menu_position

@@ -23,6 +23,7 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
  */
 final class DataModelLabelTest extends TestCase
 {
+    public $DataModel;
     protected function setUp(): void
     {
         $this->DataModel = $this->getMockBuilder(DataModel::class)

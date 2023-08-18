@@ -20,6 +20,10 @@
  */
 class Error
 {
+    public $is_debug;
+    public $msg;
+    public $trace;
+
     public function __construct($msg)
     {
         $this->is_debug = defined('WP_DEBUG') && WP_DEBUG;
