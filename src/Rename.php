@@ -64,17 +64,13 @@ abstract class Rename
          * Assign new labels to native objects
          */
         if (array_key_exists($object, $wp_post_types)) {
-            $wp_post_types[$object]->labels = DataModel::postTypeLabels(
-                $labelBase,
-                $inflect,
-                $overrides
-            );
+            $labels = DataModel::postTypeLabels($labelBase, $inflect, $overrides);
+            $wp_post_types[$object]->label = $labels->name;
+            $wp_post_types[$object]->labels = $labels;
         } elseif (array_key_exists($object, $wp_taxonomies)) {
-            $wp_taxonomies[$object]->labels = DataModel::taxonomyLabels(
-                $labelBase,
-                $inflect,
-                $overrides
-            );
+            $labels = DataModel::taxonomyLabels($labelBase, $inflect, $overrides);
+            $wp_taxonomies[$object]->label = $labels->name;
+            $wp_taxonomies[$object]->labels = $labels;
         } else {
             new Error("'{$object}' is not a known Post_type or Taxonomy. Unable to rename.");
         }
