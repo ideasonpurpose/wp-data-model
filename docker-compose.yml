@@ -2,7 +2,7 @@ services:
   # Utility service for running composer, provides a local volume for storing access tokens
   # https://hub.docker.com/_/composer
   composer:
-    image: composer:2.5
+    image: composer:2.7
     user: "${UID:-1000}:${GID:-1000}"
     environment:
       COMPOSER_HOME: /.composer
@@ -13,13 +13,13 @@ services:
 
   # https://hub.docker.com/r/ideasonpurpose/phpunit-watch
   test:
-    image: ideasonpurpose/phpunit-watch:1.3.0
+    image: ideasonpurpose/phpunit-watch:1.3.2
     volumes:
       - ./:/app
 
   # https://hub.docker.com/r/amazon/aws-cli
   aws:
-    image: amazon/aws-cli:2.13
+    image: amazon/aws-cli:2.15
     environment:
       AWS_ACCESS_KEY_ID:
       AWS_SECRET_ACCESS_KEY:
