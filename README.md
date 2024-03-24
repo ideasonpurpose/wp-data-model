@@ -46,14 +46,16 @@ New Post_Types and Taxonomies can add specific CSS Rules to the WordPress admin 
 
 ### Generating Labels
 
-A default set of labels can be generated from `WP\DataModel::postTypeLabels()` and `WP\DataModel::taxonomyLabels()`. These are often used to populate the `labels` value of the `$args` property when defining a new Post_Type or Taxonomy . Arguments are:
+A default set of labels can be generated from `WP\DataModel::postTypeLabels()` and `WP\DataModel::taxonomyLabels()`. These are often used to populate the `labels` value of the `$args` property when defining a new Post_Type or Taxonomy. 
+
+Arguments are:
 
 - **`$labelBase`** _String_
   The base name of the label. This will be inflected and case-corrected to match WordPress defaults.
 - **`$inflect`** _[Boolean]_, default `true`<br>
   A boolean switch to enable singular/plural inflection of `$labelBase`.
 - **`$overrides`** _[Array]_, default: `[]` <br>
-  An array of labels which will override the generated default labels.
+  An array of labels which will override the generated defaults [post_type](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-post-type.php#L962-L1002) and [taxonomy](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-taxonomy.php#L612-L648) labels. 
 
 ### WordPress Compatibility
 
