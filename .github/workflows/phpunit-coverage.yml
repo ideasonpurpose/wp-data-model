@@ -8,10 +8,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      # https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v4
 
       - name: Validate composer.json and composer.lock
         run: composer validate
@@ -39,6 +41,7 @@ jobs:
             --verbose
 
       - name: Upload coverage to Codecov
+        # https://github.com/marketplace/actions/codecov
         uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: false
@@ -49,7 +52,8 @@ jobs:
       # Repo Settings pane, click Test Coverage in the left sidebar. Find the ID in the
       # second section.
       - name: Code Climate coverage
-        uses: paambaati/codeclimate-action@v3.0.0
+        # https://github.com/marketplace/actions/code-climate-coverage-action
+        uses: paambaati/codeclimate-action@v5
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:

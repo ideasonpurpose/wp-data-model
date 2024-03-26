@@ -1,8 +1,8 @@
-name: Create Release & Publish to S3
+name: Build and Publish
 
 on:
   push:
-    branches: "*"
+    branches: ["*"]
     tags: ["v*"]
 
 env:
@@ -13,11 +13,13 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
     name: Build, bundle and deploy to AWS
+    # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      # https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v4
 
       - name: Set up REPO and TAG environment vars
         run: |
@@ -29,10 +31,7 @@ jobs:
         run: |
           echo  "TAG=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate
-
-      - name: Install PHP dependencies
+      - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Create Zip Archive
@@ -47,7 +46,8 @@ jobs:
           npx marked -o assets/changelog.html CHANGELOG.md
 
       - name: Store Artifact
-        uses: actions/upload-artifact@v2
+        # https://github.com/marketplace/actions/upload-a-build-artifact#v4---whats-new
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.REPO }}
           path: |
@@ -64,7 +64,7 @@ jobs:
           gh release create v${TAG} ../${REPO}.zip
 
       - name: Send artifacts to S3
-        if: ${{ contains(github.ref, 'refs/tags/') && env.AWS_ACCESS_KEY_ID }}
+        if: github.ref == 'refs/heads/main' && contains(github.ref, 'refs/tags/') && env.AWS_ACCESS_KEY_ID
         run: |
           aws s3 sync assets $S3_URI/${REPO}
           aws s3 cp ../${REPO}.zip ${S3_URI}/${REPO}/${REPO}_${TAG}.zip

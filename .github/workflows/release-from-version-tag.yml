@@ -6,11 +6,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
     name: Build Release
+    # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      # https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v4
 
       - name: Set up REPO and TAG environment vars
         run: |
@@ -33,7 +35,7 @@ jobs:
           composer archive -f zip --dir=../ --file=${REPO}
 
       - name: Create GitHub release
-        if: ${{ contains(github.ref, 'refs/tags/') }}
+        if: github.ref == 'refs/heads/main' && contains(github.ref, 'refs/tags/') 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
