@@ -12,7 +12,7 @@ Base package for building data model plugins for WordPress sites at [Ideas On Pu
 
 ## Example data-model Plugin
 
-To start a new data-model plugin, copy the **example** directory. Create new CPTs and Taxonomies in the **lib** directory, then instantiate them from **main.php**. Connect Taxonomies to Post_Types with a `taxonomyMap` and rename built-in Post_Types and Taxonomies with static calls to `WP\Rename`.
+To start a new data-model plugin, copy the **example** directory. Create new CPTs and Taxonomies in the **lib** subdirectory, then instantiate those from **main.php**. Connect Taxonomies to Post Types with a `taxonomyMap` and rename built-in Post Types and Taxonomies with static calls to `WP\Rename`.
 
 ### Create Custom Post Types and Taxonomies
 
@@ -68,20 +68,22 @@ Built-in post_types and taxonomies can be easily renamed. The DataModel object a
 ```php
 WP\Rename::post("topic"); // rename Posts to Topics
 WP\Rename::category("colors"); // Rename Categories to Colors
-WP\Rename::tag("flavors", ["popular_items" => "Most delicious flavors"]); // Rename Tags to Flavors with and override label
+WP\Rename::tag("flavors", ["popular_items" => "Most delicious flavors"]); // Rename Tags to Flavors with an override label
 ```
 
 DataModel will normalize singular and plural terms and capitalization to match WordPress best practices. For non-standard uses, supply override labels.
 
-`tag` is an alias for `post_tag`, both can be used.
+`tag` is an alias for `post_tag`, both can be used. 
 
-#### Yuck, why a static call?
+Renaming only affects the labels of built in Types and Taxonomies, internal query_vars are unchanged. 
 
-Using a static call for renames was a deliberate choice. Unlike creating a new CPT or Taxonomy, renaming does not create anything new, so a `new` invocation doesn't make sense, even though it would parallel existing syntax.
+#### Why a static call?
 
-The `new CPT` and `new Taxonomy` syntax make sense because those commands are _creating_ something new. For renaming, the command acts on something which already exists, so the invocation syntax would be inconsistent with the performed action.
+Renaming via a static call was a deliberate choice. Unlike creating a new CPT or Taxonomy, renaming does not create anything new, so a `new` invocation wouldn't make sense, even though it would parallel existing syntax.
 
-The syntax for renaming can often be achieved in a single line whereas creating new CPTs or Taxonomies usually require defining additional actions and filters.
+Calling `new CPT` or `new Taxonomy` makes sense because those commands _create_ something new. For renaming, the command acts on something which already exists, so the invocation syntax would be inconsistent with the performed action.
+
+The syntax for renaming can often be achieved in a single line whereas creating new CPTs or Taxonomies usually requires defining additional actions and filters.
 
 ### Composer Updates
 
