@@ -20,31 +20,20 @@
   },
   "scripts": {
     "composer": "npm run composer:install",
-    "composer:install": "docker-compose run --rm composer",
-    "composer:require": "docker-compose run --rm composer require",
-    "composer:update": "docker-compose run --rm composer update",
+    "composer:install": "docker compose run --rm composer",
+    "composer:require": "docker compose run --rm composer require",
+    "composer:update": "docker compose run --rm composer update",
     "preversion": "npm run wordpress:latest",
     "version": "version-everything && auto-changelog && git add -u",
-    "wordpress:latest": "docker-compose run --rm wp-tested"
+    "wordpress:latest": "docker compose run --rm wp-tested"
   },
-  "prettier": {
-    "overrides": [
-      {
-        "files": "*.php",
-        "options": {
-          "printWidth": 120,
-          "singleQuote": true,
-          "tabWidth": 4,
-          "trailingCommaPHP": true
-        }
-      }
-    ]
-  },
+  "prettier": "@ideasonpurpose/prettier-config",
   "dependencies": {
-    "@prettier/plugin-php": "^0.16.2",
+    "@ideasonpurpose/prettier-config": "^0.0.6",
+    "@prettier/plugin-php": "^0.22.2",
     "auto-changelog": "^2.2.1",
-    "prettier": "^2.2.1",
-    "version-everything": "^0.6.3"
+    "prettier": "^3.3.3",
+    "version-everything": "^0.11.4"
   },
   "auto-changelog": {
     "package": true,

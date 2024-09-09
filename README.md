@@ -87,7 +87,7 @@ The syntax for renaming can often be achieved in a single line whereas creating 
 
 ### Composer Updates
 
-The docker-compose Composer service will mount and use local auth credentials if they exist in **~/.composer/auth.json**. If those credentials don't exist and Composer hits an API rate limit, pasting a token will create a new auth.json file in the mount which with persist on the host system.
+The Docker Compose Composer service will mount and use local auth credentials if they exist in **~/.composer/auth.json**. If those credentials don't exist and Composer hits an API rate limit, pasting a token will create a new auth.json file in the mount which with persist on the host system.
 
 ### Nav-Menu Visibility
 
