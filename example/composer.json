@@ -10,6 +10,6 @@
     }
   },
   "require": {
-    "ideasonpurpose/wp-data-model": "0.7.1"
+    "ideasonpurpose/wp-data-model": "^0.7.6"
   }
 }

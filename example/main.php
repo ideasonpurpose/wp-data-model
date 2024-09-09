@@ -4,8 +4,8 @@
  * Plugin URI:        https://www.github.com/ideasonpurpose
  * Description:       Custom Post Types and Taxonomies for the Example website.
  * Version:           0.1.0
- * Requires at least: 6
- * Requires PHP:      8
+ * Requires at least: 6.6
+ * Requires PHP:      8.2
  * Author:            Ideas On Purpose
  * Author URI:        https://www.ideasonpurpose.com
  */

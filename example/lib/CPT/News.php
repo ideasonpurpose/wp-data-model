@@ -9,15 +9,16 @@ class News extends WP\CPT
     public function props()
     {
         $this->type = 'news';
-        $this->rewrite_base = $this->type;
 
         $this->define();
         $this->styles();
+
+        // add_filter("manage_edit-{$this->type}_columns", [$this, 'addColumns']);
+        // add_action("manage_{$this->type}_posts_custom_column", [$this, 'renderColumns'], 10, 2);
     }
 
     public function define()
     {
-
         $labels = WP\DataModel::postTypeLabels($this->type);
 
         $this->args = [
@@ -29,7 +30,7 @@ class News extends WP\CPT
             'show_ui' => true,
             'show_in_rest' => true,
             'rest_base' => 'news',
-            'has_archive' => $this->rewrite_base,
+            'has_archive' => true,
             'show_in_menu' => true,
             'exclude_from_search' => false,
             'capability_type' => 'post',
@@ -41,7 +42,15 @@ class News extends WP\CPT
             ],
             'query_var' => true,
             'menu_position' => $this->menu_index,
-            'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'revisions', 'author', 'custom-fields'],
+            'supports' => [
+                'title',
+                'editor',
+                'thumbnail',
+                'excerpt',
+                'revisions',
+                'author',
+                'custom-fields',
+            ],
             'menu_icon' =>
                 'data:image/svg+xml;base64,' .
                 base64_encode(
@@ -51,6 +60,27 @@ class News extends WP\CPT
         ];
     }
 
+    public function addColumns($cols)
+    {
+        $newCols = [];
+
+        foreach ($cols as $key => $value) {
+            $newCols[$key] = $value;
+            if ($key === 'cb') {
+                // $newCols['example_column'] = 'Example Column';
+            }
+        }
+        return $newCols;
+    }
+
+    public function renderColumns($col, $id)
+    {
+        switch ($col) {
+            case 'example_column':
+                // echo column content
+                break;
+        }
+    }
 
     public function styles()
     {
