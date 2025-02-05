@@ -18,9 +18,8 @@
     "ideasonpurpose/wp-admin-separators": "1.0.8"
   },
   "require-dev": {
-    "kint-php/kint": "^5",
     "ideasonpurpose/wp-test-stubs": "dev-main",
-    "phpunit/phpunit": "^10.2"
+    "phpunit/phpunit": "^11.5"
   },
   "autoload": {
     "psr-4": {
