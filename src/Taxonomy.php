@@ -34,7 +34,7 @@ abstract class Taxonomy
      * Rules should probably start with `.post-type-{$this->type}` or
      * `.taxonomy-{$this->type}` to keep selectors specific to the target object.
      */
-    protected $css = '';
+    public $css = '';
 
     /**
      * Called from the `admin_enqueue_scripts` action, this simply inlines

@@ -46,7 +46,7 @@ New Post_Types and Taxonomies can add specific CSS Rules to the WordPress admin 
 
 ### Generating Labels
 
-A default set of labels can be generated from `WP\DataModel::postTypeLabels()` and `WP\DataModel::taxonomyLabels()`. These are often used to populate the `labels` value of the `$args` property when defining a new Post_Type or Taxonomy. 
+A default set of labels can be generated from `WP\DataModel::postTypeLabels()` and `WP\DataModel::taxonomyLabels()`. These are often used to populate the `labels` value of the `$args` property when defining a new Post_Type or Taxonomy.
 
 Arguments are:
 
@@ -55,7 +55,7 @@ Arguments are:
 - **`$inflect`** _[Boolean]_, default `true`<br>
   A boolean switch to enable singular/plural inflection of `$labelBase`.
 - **`$overrides`** _[Array]_, default: `[]` <br>
-  An array of labels which will override the generated defaults [post_type](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-post-type.php#L962-L1002) and [taxonomy](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-taxonomy.php#L612-L648) labels. 
+  An array of labels which will override the generated defaults [post_type](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-post-type.php#L962-L1002) and [taxonomy](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-taxonomy.php#L612-L648) labels.
 
 ### WordPress Compatibility
 
@@ -73,9 +73,9 @@ WP\Rename::tag("flavors", ["popular_items" => "Most delicious flavors"]); // Ren
 
 DataModel will normalize singular and plural terms and capitalization to match WordPress best practices. For non-standard uses, supply override labels.
 
-`tag` is an alias for `post_tag`, both can be used. 
+`tag` is an alias for `post_tag`, both can be used.
 
-Renaming only affects the labels of built in Types and Taxonomies, internal query_vars are unchanged. 
+Renaming only affects the labels of built in Types and Taxonomies, internal query_vars are unchanged.
 
 #### Why a static call?
 
@@ -145,6 +145,10 @@ Our [WordPress Updates AWS endpoint][wp-update] can be tested by sending a POST 
   "plugin": "example-data-model/main.php"
 }
 ```
+
+### PHPUnit Tests
+
+The [PHPUnit](https://phpunit.de/) test suite can be run from Docker or Herd. Docker uses our [PHPUnit Watch Docker Image](https://hub.docker.com/r/ideasonpurpose/phpunit-watch). Herd users will need to enable xDebug. Here are [Herd's instructions for enabling XDebug](https://herd.laravel.com/docs/macos/debugging/xdebug).
 
 ## Default Post_Type and Taxonomy Labels
 

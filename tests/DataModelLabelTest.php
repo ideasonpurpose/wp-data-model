@@ -3,6 +3,8 @@
 namespace IdeasOnPurpose\WP;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use IdeasOnPurpose\WP\Test;
 use WP_Taxonomy;
 use WP_Post_Type;
@@ -17,10 +19,9 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
     }
 }
 
-/**
- * @covers \IdeasOnPurpose\WP\DataModel
- * @covers \IdeasOnPurpose\WP\Error
- */
+#[CoversClass(\IdeasOnPurpose\WP\DataModel::class)]
+#[CoversClass(\IdeasOnPurpose\WP\Labels::class)]
+#[CoversClass(\IdeasOnPurpose\WP\Error::class)]
 final class DataModelLabelTest extends TestCase
 {
     public $DataModel;
@@ -37,29 +38,13 @@ final class DataModelLabelTest extends TestCase
 
     public function testUpdateLabels()
     {
-        global $wp_post_types, $wp_taxonomies;
-
-        $wp_post_types['page'] = new WP_Post_Type('page', 'Pages');
-        $wp_taxonomies['category'] = new WP_Taxonomy('category');
-        $wp_taxonomies['post_tag'] = new WP_Taxonomy('post_tag');
-
-        $wp_post_types['page']->labels->titleCaseSingular = 'Titlecase Page';
-        $wp_post_types['page']->labels->titleCasePlural = 'Titlecase Pages';
-        $wp_post_types['page']->labels->lowercaseSingular = 'The label is page, see?';
-        $wp_post_types['page']->labels->lowercasePlural = 'The label is pages, see?';
-
-        $wp_taxonomies['category']->labels->titleCaseSingular = 'Titlecase Category';
-        $wp_taxonomies['category']->labels->titleCasePlural = 'Titlecase Categories';
-        $wp_taxonomies['category']->labels->lowercaseSingular = 'The label is category, see?';
-        $wp_taxonomies['category']->labels->lowercasePlural = 'The label is categories, see?';
-
-        $actual = $this->DataModel->labels('word');
-        $this->assertStringContainsString('word', $actual->lowercaseSingular);
-        $this->assertStringContainsString('Words', $actual->titleCasePlural);
+        $actual =  $this->DataModel->labels('word');
+        $this->assertEqualsIgnoringCase('word', $actual['singular_name']);
+        $this->assertEqualsIgnoringCase('Words', $actual['name']);
 
         $actual = $this->DataModel->labels('thing', false, [], 'category');
-        $this->assertStringContainsString('thing', $actual->lowercaseSingular);
-        $this->assertStringContainsString('Thing', $actual->titleCasePlural);
+        $this->assertEqualsIgnoringCase('thing', $actual['singular_name']);
+        $this->assertEqualsIgnoringCase('Thing', $actual['name']);
     }
 
     public function testUpdateLabels_failNoKnownType()
@@ -67,8 +52,8 @@ final class DataModelLabelTest extends TestCase
         global $wp_post_types, $wp_taxonomies;
 
         $wp_post_types['page'] = new WP_Post_Type('page', 'Pages');
-        $wp_taxonomies['category'] = new WP_Taxonomy('category');
-        $wp_taxonomies['post_tag'] = new WP_Taxonomy('post_tag');
+        $wp_taxonomies['category'] = new WP_Taxonomy('category', 'post');
+        $wp_taxonomies['post_tag'] = new WP_Taxonomy('post_tag', 'post');
 
         $noType = 'not-a-type';
         $actual = $this->DataModel->labels('thing', false, [], $noType);
@@ -78,54 +63,67 @@ final class DataModelLabelTest extends TestCase
         $this->assertStringContainsString($noType, $actual->msg);
     }
 
-    public function testUpdateLabels_nullLabel()
-    {
-        global $wp_post_types;
-
-        $wp_post_types['page'] = new WP_Post_Type('page', 'Pages');
-        $wp_post_types['page']->labels->nullLabel = null;
-
-        $actual = $this->DataModel->labels('thing', false, [], 'page');
-        $this->assertNull($actual->nullLabel);
-    }
-
     public function testUpdateLabels_override()
     {
-        global $wp_post_types;
-
-        $wp_post_types['page'] = new WP_Post_Type('page', 'Pages');
-        $wp_post_types['page']->labels->test = 'Test Pages label';
-        $wp_post_types['page']->labels->override = 'This page label will be gone';
 
         $overrideLabel = 'The new page label';
 
         $actual = $this->DataModel->labels('thing', true, ['override' => $overrideLabel], 'page');
-        $this->assertEquals($actual->override, $overrideLabel);
-        $this->assertStringContainsString('Things', $actual->test);
-        $this->assertStringContainsString('Test', $actual->test);
+        $this->assertEquals($actual['override'], $overrideLabel);
+        $this->assertStringContainsString('Things', $actual['name']);
+        $this->assertStringContainsString('Thing', $actual['singular_name']);
     }
 
     public function testPostTypeLabels()
     {
-        global $wp_post_types;
-
-        $wp_post_types['page'] = new WP_Post_Type('page', 'Pages');
-        $wp_post_types['page']->labels->testLabel = 'Some Pages label';
         $actual = $this->DataModel->postTypeLabels('dog');
-        $this->assertStringContainsString('Dogs', $actual->testLabel);
+        $this->assertStringContainsString('Dogs', $actual['name']);
+    }
+
+    public function testPostTypeLabels_old_noInflect()
+    {
+        $actual = $this->DataModel->postTypeLabels('bird', false);
+        $this->assertNotEqualsIgnoringCase('Birds', $actual['name']);
     }
 
     public function testTaxonomyLabels()
     {
-        global $wp_post_types, $wp_taxonomies;
-
-        $wp_post_types['page'] = new WP_Post_Type('page', 'Pages');
-        $wp_taxonomies['category'] = new WP_Taxonomy('category');
-        $wp_taxonomies['post_tag'] = new WP_Taxonomy('post_tag');
-
-        $wp_taxonomies['category']->labels->testLabel = 'Some Categories label';
-
         $actual = $this->DataModel->taxonomyLabels('color');
-        $this->assertStringContainsString('Colors', $actual->testLabel);
+        $this->assertStringContainsString('Colors', $actual['name']);
+    }
+
+    public function testTaxonomyLabels_old_noInflect()
+    {
+        $actual = $this->DataModel->taxonomyLabels('color', false);
+        $this->assertNotEqualsIgnoringCase('Colors', $actual['name']);
+    }
+
+    /**
+     * Simpler, direct test of updateLabels
+     */
+    public function testUpdateLabelsPublic(): void
+    {
+        $labels = new \stdClass();
+        $labels->name = 'Frogs';
+        $labels->singular_name = 'frog';
+        $labels->singularTest = 'This is a frog';
+        $labels->pluralTest = 'Look at all those Frogs';
+        $actual = $this->DataModel->updateLabels('thing', $labels, true);
+        $this->assertStringContainsString('thing', $actual['singularTest']);
+        $this->assertStringContainsString('Things', $actual['pluralTest']);
+    }
+
+    public function testUpdateLabelsDirect()
+    {
+        $labels = new \stdClass();
+        $labels->name = 'Frogs';
+        $labels->singular_name = 'frog';
+        $labels->singularTest = 'This is a frog';
+        $labels->pluralTest = 'Look at all those Frogs';
+
+        $actual = $this->DataModel->updateLabelsDirect('chicken', 'Chickens', $labels);
+        $this->assertStringContainsString('chicken', $actual['singularTest']);
+        $this->assertStringContainsString('Chickens', $actual['pluralTest']);
+        $this->assertEquals('This is a chicken', $actual['singularTest']);
     }
 }

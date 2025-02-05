@@ -5,16 +5,22 @@ namespace IdeasOnPurpose\WP;
 // require __DIR__ . '/../vendor/autoload.php';
 
 use Doctrine\Inflector\InflectorFactory;
+// use Labels;
+use PhpParser\Node\Stmt\Label;
+
+// use stdClass;
+// use InvalidArgumentException;
 
 abstract class DataModel
 {
     /**
      * Plugins define Taxonomies and Custom Post Types in the child class by overriding `register`
      */
-    abstract protected function register();
+    abstract public function register();
 
     public $__FILE__;
     public $map;
+    public $taxonomyMap = [];
 
     public function __construct()
     {
@@ -71,7 +77,6 @@ abstract class DataModel
      *        'post_tag' => ['project', 'person'],
      *    ];
      */
-    public $taxonomyMap = [];
     public function parseTaxonomyMap()
     {
         foreach ($this->taxonomyMap as $tax => $types) {
@@ -85,7 +90,7 @@ abstract class DataModel
     public function parseTaxonomyFilterMap()
     {
         /**
-         * @var $typenow is a WordPress global used on admin pages, assigned from post_type
+         * @var array $typenow is a WordPress global used on admin pages, assigned from post_type
          */
         global $typenow;
 
@@ -113,80 +118,99 @@ abstract class DataModel
         }
     }
 
-    private static function updateLabels($labelBase, $labels, $inflect = true)
+    /**
+     * A copy of updateLabels which requires a singular and plural label definition
+     * so we can remove the inflector dependency.
+     * @param array $labelBase
+     * @param mixed $labels
+     * @return void
+     */
+    public static function updateLabelsDirect($singular, $plural, $labels)
     {
-        /**
-         * Enforce singular/plural and capitalizations for objects and labels
-         */
-        $inflector = InflectorFactory::create()->build();
-
-        $singularSrc = strtolower($inflector->singularize($labels->name));
-        $singularSrcTitleCase = $inflector->capitalize($singularSrc);
-        $pluralSrc = strtolower($inflector->pluralize($labels->name));
-        $pluralSrcTitleCase = $inflector->capitalize($pluralSrc);
-
-        if ($inflect) {
-            $singular = strtolower($inflector->singularize($labelBase));
-            $singularTitleCase = $inflector->capitalize($singular);
-            $plural = strtolower($inflector->pluralize($labelBase));
-            $pluralTitleCase = $inflector->capitalize($plural);
-        } else {
-            $singular = $plural = strtolower($labelBase);
-            $singularTitleCase = $pluralTitleCase = $inflector->capitalize($labelBase);
-        }
-
-        $patterns = [
-            "/\b$singularSrc\b/",
-            "/\b$singularSrcTitleCase\b/",
-            "/\b$pluralSrc\b/",
-            "/\b$pluralSrcTitleCase\b/",
-        ];
-        $replacements = [$singular, $singularTitleCase, $plural, $pluralTitleCase];
-
-        $newLabels = new \stdClass();
-        foreach ($labels as $key => $value) {
-            if ($value === null) {
-                $newLabels->$key = null;
-            } else {
-                $newLabels->$key = preg_replace($patterns, $replacements, $value);
-            }
-        }
-        return $newLabels;
+        return Labels::updateLabels($singular, $plural, (array) $labels);
     }
 
-    /**
-     * Generate a set of labels based on $labelBase for the post_type or Taxonomy in $object
-     *
-     * @param  String $labelBase - The name to use as the basis of the generated labels
-     * @param  Array $overrides - A set of non-standard labels to apply over defaults
-     * @param  String $object - The kind of labels to generate, 'page', 'category', etc.
-     * @param  Boolean $inflect - Whether or not to normalize $labelBase to singular/plural
-     * @return Object
-     */
+    public static function updateLabels($labelBase, $labels, $inflect = true)
+    {
+        if ($inflect) {
+            list($singular, $plural) = self::inflectorBridge($labelBase);
+        } else {
+            $singular = $plural = $labelBase;
+        }
+        return Labels::updateLabels($singular, $plural, (array) $labels);
+    }
+
+    //     /**
+    //      * Enforce singular/plural and capitalizations for objects and labels
+    //      *
+    //      * Src string is extracted from $labels->name (should use singular_name)
+    //      */
+    //     $inflector = InflectorFactory::create()->build();
+
+    //     // $singularSrc = strtolower($inflector->singularize($labels->name));
+    //     // $singularSrcTitleCase = $inflector->capitalize($singularSrc);
+    //     // $pluralSrc = strtolower($inflector->pluralize($labels->name));
+    //     // $pluralSrcTitleCase = $inflector->capitalize($pluralSrc);
+
+    //     if ($inflect) {
+    //         $singular = strtolower($inflector->singularize($labelBase));
+    //         // $singularTitleCase = $inflector->capitalize($singular);
+    //         $plural = strtolower($inflector->pluralize($labelBase));
+    //         // $pluralTitleCase = $inflector->capitalize($plural);
+    //     } else {
+    //         $singular = strtolower($labelBase);
+    //         $plural = $singular;
+    //         // $singularTitleCase = $inflector->capitalize($labelBase);
+    //         // $pluralTitleCase = $singularTitleCase;
+    //     }
+
+    //     return Labels::labels($singular, $plural)
+
+    //     $patterns = [
+    //         "/\b$singularSrc\b/",
+    //         "/\b$singularSrcTitleCase\b/",
+    //         "/\b$pluralSrc\b/",
+    //         "/\b$pluralSrcTitleCase\b/",
+    //     ];
+    //     $replacements = [$singular, $singularTitleCase, $plural, $pluralTitleCase];
+
+    //     $newLabels = new \stdClass();
+    //     foreach ($labels as $key => $value) {
+    //         if ($value === null) {
+    //             $newLabels->$key = null;
+    //         } else {
+    //             $newLabels->$key = preg_replace($patterns, $replacements, $value);
+    //         }
+    //     }
+    //     return $newLabels;
+    // }
+
+    // /**
+    //  * Generate a set of labels based on $labelBase for the post_type or Taxonomy in $object
+    //  *
+    //  * @param  String $labelBase - The name to use as the basis of the generated labels
+    //  * @param  Array $overrides - A set of non-standard labels to apply over defaults
+    //  * @param  String $object - The kind of labels to generate, 'page', 'category', etc.
+    //  * @param  Boolean $inflect - Whether or not to normalize $labelBase to singular/plural
+    //  * @return Object
+    //  */
     public static function labels($labelBase, $inflect = true, $overrides = [], $object = 'page')
     {
         global $wp_post_types, $wp_taxonomies;
+        if ($inflect) {
+            list($singular, $plural) = self::inflectorBridge($labelBase);
+        } else {
+            $singular = $plural = $labelBase;
+        }
 
         /**
          * Check to see if $object exists as a Post_type or Taxonomy. If $labels do not
          * exist, bail out early.
          */
         if (array_key_exists($object, $wp_post_types)) {
-            $labels = $wp_post_types[$object]->labels;
+            $is_post = true;
         } elseif (array_key_exists($object, $wp_taxonomies)) {
-            /**
-             * Tags and Categories do not overlap as cleanly as Posts/Pages, so we
-             * request both default sets of labels then manually construct a super-set
-             * of labels by merging tag-labels over category-null labels with all
-             * values reset to 'category'.
-             */
-            $catLabels = $wp_taxonomies['category']->labels;
-            $tagLabels = self::updateLabels('category', $wp_taxonomies['post_tag']->labels);
-            $labels = new \stdClass();
-
-            foreach ($catLabels as $key => $value) {
-                $labels->$key = $value ?? $tagLabels->$key;
-            }
+            $is_post = false;
         } else {
             /**
              * No matching post_types or taxonomies
@@ -194,16 +218,23 @@ abstract class DataModel
             $msg = "Data Model renaming failed: '{$object}' is not a known Post_type or Taxonomy.";
             return new Error($msg);
         }
+        $newLabels = Labels::labels($singular, $plural, $is_post);
+        return array_merge($newLabels, $overrides);
+    }
 
-        $newLabels = self::updateLabels($labelBase, $labels, $inflect);
+    /**
+     * Bridges the existing postTypeLabels and taxonomyLabels into the new
+     * Labels class methods. Those expect both singular and plural strings.
+     * @param mixed $base
+     * @return array
+     */
+    public static function inflectorBridge($base)
+    {
+        $inflector = InflectorFactory::create()->build();
+        $singular = strtolower($inflector->singularize($base));
+        $plural = strtolower($inflector->pluralize($base));
 
-        /**
-         * Apply overrides to new label values
-         */
-        foreach ($overrides as $key => $value) {
-            $newLabels->$key = $value;
-        }
-        return $newLabels;
+        return [$singular, $plural];
     }
 
     /**
@@ -212,7 +243,13 @@ abstract class DataModel
      */
     public static function postTypeLabels($labelBase, $inflect = true, $overrides = [])
     {
-        return self::labels($labelBase, $inflect, $overrides, 'page');
+        if ($inflect) {
+            list($singular, $plural) = self::inflectorBridge($labelBase);
+        } else {
+            $singular = $plural = $labelBase;
+        }
+        $newLabels = Labels::postTypeLabels($singular, $plural);
+        return array_merge($newLabels, $overrides);
     }
 
     /**
@@ -221,7 +258,13 @@ abstract class DataModel
      */
     public static function taxonomyLabels($labelBase, $inflect = true, $overrides = [])
     {
-        return self::labels($labelBase, $inflect, $overrides, 'category');
+        if ($inflect) {
+            list($singular, $plural) = self::inflectorBridge($labelBase);
+        } else {
+            $singular = $plural = $labelBase;
+        }
+        $newLabels = Labels::taxonomyLabels($singular, $plural);
+        return array_merge($newLabels, $overrides);
     }
 
     public function getNavMenuNames()

@@ -2,22 +2,11 @@
 
 namespace IdeasOnPurpose\WP;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use IdeasOnPurpose\WP\Test;
-use PHPUnit\Framework\InvalidArgumentException;
-use PHPUnit\Framework\MockObject\ClassAlreadyExistsException;
-use PHPUnit\Framework\MockObject\ClassIsFinalException;
-use PHPUnit\Framework\MockObject\DuplicateMethodException;
-use PHPUnit\Framework\MockObject\InvalidMethodNameException;
-use PHPUnit\Framework\MockObject\OriginalConstructorInvocationRequiredException;
-use PHPUnit\Framework\MockObject\ReflectionException;
-use PHPUnit\Framework\MockObject\RuntimeException;
-use PHPUnit\Framework\MockObject\UnknownTypeException;
-use PHPUnit\Framework\MockObject\CannotUseOnlyMethodsException;
-use SebastianBergmann\RecursionContext\InvalidArgumentException as RecursionContextInvalidArgumentException;
-use PHPUnit\Framework\Exception as FrameworkException;
-use PHPUnit\Framework\ExpectationFailedException;
+
 use WP_Taxonomy;
 
 Test\Stubs::init();
@@ -30,17 +19,16 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
     }
 }
 
-// class TestDataModel extends \IdeasOnPurpose\WP\DataModel
-// {
-//     public function register()
-//     {
-//     }
-// }
-
 /**
- * @covers \IdeasOnPurpose\WP\DataModel
- * @covers \IdeasOnPurpose\WP\Plugin\Api
+ * Empty class for mocking the abstract class
  */
+class DataModelMock extends DataModel
+{
+    public function register() {}
+}
+
+#[CoversClass(\IdeasOnPurpose\WP\DataModel::class)]
+#[CoversClass(\IdeasOnPurpose\WP\Plugin\Api::class)]
 final class DataModelTest extends TestCase
 {
     protected function setUp(): void
@@ -65,14 +53,20 @@ final class DataModelTest extends TestCase
          * This mock /stub appear to go unused
          */
         // $this->createStub(Plugin\Api::class);
-        $ApiMock = $this->getMockBuilder(Plugin\Api::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+
+        $ApiMock = $this->createMock(Plugin\Api::class);
+        // $ApiMock = $this->getMockBuilder(Plugin\Api::class)
+        //     ->disableOriginalConstructor()
+        //     ->getMock();
+
+        // $ApiMock->expects($this->once());
 
         $DataModel = $this->getMockBuilder(DataModel::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['register'])
+            ->onlyMethods(['register', 'getNavMenuNames'])
             ->getMock();
+
+        $DataModel->method('getNavMenuNames')->willReturn(['a' => 1, 'b' => 2]);
 
         $DataModel->__construct();
 
@@ -271,5 +265,25 @@ final class DataModelTest extends TestCase
         ];
 
         $actual = $DataModel->navMenuVisibility(false);
+    }
+
+    public function testGetNavMenuNames()
+    {
+        global $wp_taxonomies, $wp_post_types;
+
+        $wp_taxonomies = [
+            'dog' => 'Stella',
+        ];
+        $wp_post_types = [
+            'fruit' => 'kiwi',
+        ];
+
+        $reflection = new \ReflectionClass(DataModelMock::class);
+        $dataModel = $reflection->newInstanceWithoutConstructor();
+
+        $menuNames = $dataModel->getNavMenuNames();
+
+        $this->assertContains('add-post-type-fruit', $menuNames);
+        $this->assertContains('add-dog', $menuNames);
     }
 }

@@ -1,35 +1,46 @@
 <?php
 
-namespace IdeasOnPurpose;
+namespace IdeasOnPurpose\WP;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use IdeasOnPurpose\WP\Test;
 
 Test\Stubs::init();
 
 /**
- * @covers \IdeasOnPurpose\WP\Taxonomy
+ * Empty class for mocking the abstract class
  */
+class TaxonomyMock extends Taxonomy
+{
+    public function props() {}
+}
+
+#[CoversClass(\IdeasOnPurpose\WP\Taxonomy::class)]
 final class TaxonomyTest extends TestCase
 {
-
     public $Taxonomy;
     protected function setUp(): void
     {
-        /** @var \IdeasOnPurpose\WP\Taxonomy $this->Taxonomy */
-        $this->Taxonomy = $this->getMockForAbstractClass(WP\Taxonomy::class);
-        $this->Taxonomy->slug = 'test';
+        $reflection = new \ReflectionClass(TaxonomyMock::class);
+        $this->Taxonomy = $reflection->newInstanceWithoutConstructor();
         $this->Taxonomy->args = [];
-
-        /**
-         * Workaround the protected $css property.
-         */
-        $Ref = new \ReflectionClass($this->Taxonomy);
-        $prop = $Ref->getProperty('css');
-        $prop->setAccessible(true);
-        $prop->setValue($this->Taxonomy, 'Test CSS String');
     }
 
+    public function test__construct()
+    {
+        $mockTaxonomy = $this->getMockBuilder(TaxonomyMock::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['props'])
+            ->getMock();
+
+        $mockTaxonomy->expects($this->once())->method('props');
+
+        $types = ['color', 'animal'];
+        $mockTaxonomy->__construct($types);
+        $this->assertContains('color', $mockTaxonomy->post_types);
+        $this->assertContains('animal', $mockTaxonomy->post_types);
+    }
     public function testRegister()
     {
         global $taxonomies;
@@ -42,8 +53,11 @@ final class TaxonomyTest extends TestCase
     {
         global $inline_styles;
         $inline_styles = [];
+        $fakeRule = 'fake style rule';
+        $this->Taxonomy->css = $fakeRule;
         $this->Taxonomy->adminStyles();
         $this->assertStringContainsString('wp-admin', $inline_styles[0]['handle']);
         $this->assertStringContainsString('/* START', $inline_styles[0]['data']);
+        $this->assertStringContainsString('style rule', $inline_styles[0]['data']);
     }
 }

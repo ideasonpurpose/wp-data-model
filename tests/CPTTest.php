@@ -3,8 +3,8 @@
 namespace IdeasOnPurpose\WP;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use IdeasOnPurpose\WP\Test;
-use WP_Taxonomy;
 
 Test\Stubs::init();
 
@@ -17,10 +17,16 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
 }
 
 /**
- * @covers \IdeasOnPurpose\WP\CPT
- * @covers \IdeasOnPurpose\WP\DataModel
- * @covers \IdeasOnPurpose\WP\Error
+ * Empty class for mocking the abstract class
  */
+class CPTMock extends CPT
+{
+    public function props() {}
+}
+
+#[CoversClass(\IdeasOnPurpose\WP\CPT::class)]
+#[CoversClass(\IdeasOnPurpose\WP\DataModel::class)]
+#[CoversClass(\IdeasOnPurpose\WP\Error::class)]
 final class CPTTest extends TestCase
 {
     public $CPT;
@@ -29,18 +35,24 @@ final class CPTTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var \IdeasOnPurpose\WP\CPT $this->Taxonomy */
-        $this->CPT = $this->getMockForAbstractClass(CPT::class);
+        $reflection = new \ReflectionClass(CPTMock::class);
+        $this->CPT = $reflection->newInstanceWithoutConstructor();
         $this->CPT->type = 'test_post_type';
         $this->CPT->args = [];
+        $this->CPT->css = '';
+    }
 
-        /**
-         * Workaround the protected $css property.
-         */
-        $this->Ref = new \ReflectionClass($this->CPT);
-        $this->css = $this->Ref->getProperty('css');
-        $this->css->setAccessible(true);
-        $this->css->setValue($this->CPT, '');
+    public function test__construct()
+    {
+        $mockCPT = $this->getMockBuilder(CPTMock::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['props'])
+            ->getMock();
+
+        $mockCPT->expects($this->once())->method('props');
+
+        $mockCPT->__construct(123);
+        $this->assertEquals(123, $mockCPT->menu_index);
     }
 
     public function testRegister()
@@ -56,7 +68,7 @@ final class CPTTest extends TestCase
         global $inline_styles;
         $inline_styles = [];
 
-        $this->css->setValue($this->CPT, 'Test CSS String');
+        $this->CPT->css = 'Test CSS String';
 
         $this->CPT->adminStyles();
         $this->assertStringContainsString('wp-admin', $inline_styles[0]['handle']);

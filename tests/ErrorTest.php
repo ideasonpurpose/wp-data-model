@@ -3,6 +3,7 @@
 namespace IdeasOnPurpose\WP;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use IdeasOnPurpose\WP\Test;
 
 Test\Stubs::init();
@@ -15,9 +16,7 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
     }
 }
 
-/**
- * @covers \IdeasOnPurpose\WP\Error
- */
+#[CoversClass(\IdeasOnPurpose\WP\Error::class)]
 final class ErrorTest extends TestCase
 {
     public function testPrintError()
