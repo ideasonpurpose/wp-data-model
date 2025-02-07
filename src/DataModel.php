@@ -5,11 +5,7 @@ namespace IdeasOnPurpose\WP;
 // require __DIR__ . '/../vendor/autoload.php';
 
 use Doctrine\Inflector\InflectorFactory;
-// use Labels;
-use PhpParser\Node\Stmt\Label;
-
-// use stdClass;
-// use InvalidArgumentException;
+use IdeasOnPurpose\WP\DataModel\Labels;
 
 abstract class DataModel
 {
@@ -121,17 +117,39 @@ abstract class DataModel
     /**
      * A copy of updateLabels which requires a singular and plural label definition
      * so we can remove the inflector dependency.
+     *
+     * TODO: Unused?
      * @param array $labelBase
      * @param mixed $labels
      * @return void
      */
+    #[\Deprecated(message: 'use WP\DataModel\Labels::updateLabels instead', since: '1.0.0')]
     public static function updateLabelsDirect($singular, $plural, $labels)
     {
+        $deprecation_msg =
+            "<code>WP\DataModel::updateLabelsDirect</code> is deprecated.\n" .
+            "Please update $singular labels to use " .
+            '<code>WP\DataModel\Labels::updateLabels</code> instead';
+        new Error($deprecation_msg);
+
         return Labels::updateLabels($singular, $plural, (array) $labels);
     }
 
+    /**
+     * @param string $labelBase
+     * @param mixed $labels
+     * @param bool $inflect
+     * @return array
+     */
+    #[\Deprecated(message: 'use WP\DataModel\Labels::updateLabels instead', since: '1.0.0')]
     public static function updateLabels($labelBase, $labels, $inflect = true)
     {
+        $deprecation_msg =
+            "<code>WP\DataModel::updateLabels</code> is deprecated.\n" .
+            "Please update $labelBase labels to use " .
+            '<code>WP\DataModel\Labels::updateLabels</code> instead';
+        new Error($deprecation_msg);
+
         if ($inflect) {
             list($singular, $plural) = self::inflectorBridge($labelBase);
         } else {
@@ -140,63 +158,26 @@ abstract class DataModel
         return Labels::updateLabels($singular, $plural, (array) $labels);
     }
 
-    //     /**
-    //      * Enforce singular/plural and capitalizations for objects and labels
-    //      *
-    //      * Src string is extracted from $labels->name (should use singular_name)
-    //      */
-    //     $inflector = InflectorFactory::create()->build();
-
-    //     // $singularSrc = strtolower($inflector->singularize($labels->name));
-    //     // $singularSrcTitleCase = $inflector->capitalize($singularSrc);
-    //     // $pluralSrc = strtolower($inflector->pluralize($labels->name));
-    //     // $pluralSrcTitleCase = $inflector->capitalize($pluralSrc);
-
-    //     if ($inflect) {
-    //         $singular = strtolower($inflector->singularize($labelBase));
-    //         // $singularTitleCase = $inflector->capitalize($singular);
-    //         $plural = strtolower($inflector->pluralize($labelBase));
-    //         // $pluralTitleCase = $inflector->capitalize($plural);
-    //     } else {
-    //         $singular = strtolower($labelBase);
-    //         $plural = $singular;
-    //         // $singularTitleCase = $inflector->capitalize($labelBase);
-    //         // $pluralTitleCase = $singularTitleCase;
-    //     }
-
-    //     return Labels::labels($singular, $plural)
-
-    //     $patterns = [
-    //         "/\b$singularSrc\b/",
-    //         "/\b$singularSrcTitleCase\b/",
-    //         "/\b$pluralSrc\b/",
-    //         "/\b$pluralSrcTitleCase\b/",
-    //     ];
-    //     $replacements = [$singular, $singularTitleCase, $plural, $pluralTitleCase];
-
-    //     $newLabels = new \stdClass();
-    //     foreach ($labels as $key => $value) {
-    //         if ($value === null) {
-    //             $newLabels->$key = null;
-    //         } else {
-    //             $newLabels->$key = preg_replace($patterns, $replacements, $value);
-    //         }
-    //     }
-    //     return $newLabels;
-    // }
-
-    // /**
-    //  * Generate a set of labels based on $labelBase for the post_type or Taxonomy in $object
-    //  *
-    //  * @param  String $labelBase - The name to use as the basis of the generated labels
-    //  * @param  Array $overrides - A set of non-standard labels to apply over defaults
-    //  * @param  String $object - The kind of labels to generate, 'page', 'category', etc.
-    //  * @param  Boolean $inflect - Whether or not to normalize $labelBase to singular/plural
-    //  * @return Object
-    //  */
+    /**
+     * Generate a set of labels based on $labelBase for the post_type or Taxonomy in $object
+     *
+     * @param  String $labelBase - The name to use as the basis of the generated labels
+     * @param  Array $overrides - A set of non-standard labels to apply over defaults
+     * @param  String $object - The kind of labels to generate, 'page', 'category', etc.
+     * @param  Boolean $inflect - Whether or not to normalize $labelBase to singular/plural
+     * @return Object
+     */
+    #[\Deprecated(message: 'use WP\DataModel\Labels::labels instead', since: '1.0.0')]
     public static function labels($labelBase, $inflect = true, $overrides = [], $object = 'page')
     {
         global $wp_post_types, $wp_taxonomies;
+
+        $deprecation_msg =
+            "<code>WP\DataModel::labels</code> is deprecated.\n" .
+            "Please update $labelBase labels to use " .
+            '<code>WP\DataModel\Labels::labels</code> instead';
+        new Error($deprecation_msg);
+
         if ($inflect) {
             list($singular, $plural) = self::inflectorBridge($labelBase);
         } else {
@@ -228,6 +209,7 @@ abstract class DataModel
      * @param mixed $base
      * @return array
      */
+    #[\Deprecated(message: 'remove once deprecated label methods are gone', since: '1.0.0')]
     public static function inflectorBridge($base)
     {
         $inflector = InflectorFactory::create()->build();
@@ -241,14 +223,21 @@ abstract class DataModel
      * Default to 'page' since that has a few more labels than 'post',
      * extra labels will be ignored.
      */
+    #[\Deprecated(message: 'use WP\DataModel\Labels::post_type instead', since: '1.0.0')]
     public static function postTypeLabels($labelBase, $inflect = true, $overrides = [])
     {
+        $deprecation_msg =
+            "<code>WP\DataModel::postTypeLabels</code> is deprecated.\n" .
+            "Please update $labelBase labels to use " .
+            '<code>WP\DataModel\Labels::post_type</code> instead';
+        new Error($deprecation_msg);
+
         if ($inflect) {
             list($singular, $plural) = self::inflectorBridge($labelBase);
         } else {
             $singular = $plural = $labelBase;
         }
-        $newLabels = Labels::postTypeLabels($singular, $plural);
+        $newLabels = Labels::post_type($singular, $plural);
         return array_merge($newLabels, $overrides);
     }
 
@@ -256,14 +245,21 @@ abstract class DataModel
      * Default to 'category' since that has a few more labels than 'post_tag',
      * extra labels will be ignored.
      */
+    #[\Deprecated(message: 'use WP\DataModel\Labels::taxonomy instead', since: '1.0.0')]
     public static function taxonomyLabels($labelBase, $inflect = true, $overrides = [])
     {
+        $deprecation_msg =
+            "<code>WP\DataModel::taxonomyLabels</code> is deprecated.\n" .
+            "Please update $labelBase labels to use " .
+            '<code>WP\DataModel\Labels::taxonomy</code> instead';
+        new Error($deprecation_msg);
+
         if ($inflect) {
             list($singular, $plural) = self::inflectorBridge($labelBase);
         } else {
             $singular = $plural = $labelBase;
         }
-        $newLabels = Labels::taxonomyLabels($singular, $plural);
+        $newLabels = Labels::taxonomy($singular, $plural);
         return array_merge($newLabels, $overrides);
     }
 

@@ -21,7 +21,7 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
     }
 }
 
-#[CoversClass(\IdeasOnPurpose\WP\Labels::class)]
+#[CoversClass(\IdeasOnPurpose\WP\DataModel\Labels::class)]
 final class LabelsTest extends TestCase
 {
     public function testLabels()
@@ -32,7 +32,7 @@ final class LabelsTest extends TestCase
             'toad' => 'sapo',
             'toads' => 'sapos',
         ];
-        $actual = Labels::labels('toad', 'toads', true, false);
+        $actual = DataModel\Labels::labels('toad', 'toads', true, false);
         $this->assertArrayHasKey('name', $actual);
     }
 
@@ -45,21 +45,21 @@ final class LabelsTest extends TestCase
             'birds' => 'pájaros',
         ];
 
-        $labels = Labels::labels('toad', 'toads', true, false);
-        $actual = Labels::updateLabels(__('bird'), __('birds'), $labels);
+        $labels = DataModel\Labels::labels('toad', 'toads', true, false);
+        $actual = DataModel\Labels::updateLabels(__('bird'), __('birds'), $labels);
         $this->assertArrayHasKey('name', $actual);
         $this->assertEqualsIgnoringCase(__('birds'), $actual['name']);
     }
 
     public function testPostTypeLabels()
     {
-        $actual = Labels::postTypeLabels('dog', 'Dogs');
+        $actual = DataModel\Labels::post_type('dog', 'Dogs');
         $this->assertEqualsIgnoringCase('dog', $actual['singular_name']);
     }
 
     public function testTaxonomyLabels()
     {
-        $actual = Labels::taxonomyLabels('color', 'colors');
+        $actual = DataModel\Labels::taxonomy('color', 'colors');
         $this->assertEqualsIgnoringCase('Colors', $actual['name']);
     }
 }

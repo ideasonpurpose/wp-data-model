@@ -1,6 +1,6 @@
 <?php
 
-namespace IdeasOnPurpose\WP;
+namespace IdeasOnPurpose\WP\DataModel;
 
 class Labels
 {
@@ -77,7 +77,7 @@ class Labels
      * Defaults to Page-like hierarchical labels.
      * Set $hierarchical = false to create post-like labels.
      */
-    public static function postTypeLabels($singular, $plural, $hierarchical = true)
+    public static function post_type($singular, $plural, $hierarchical = true)
     {
         return self::labels($singular, $plural, true, $hierarchical);
     }
@@ -87,7 +87,7 @@ class Labels
      * Defaults to Category-like hierarchical labels.
      * Set $hierarchical = false to create tag-like labels.
      */
-    public static function taxonomyLabels($singular, $plural, $hierarchical = true)
+    public static function taxonomy($singular, $plural, $hierarchical = true)
     {
         return self::labels($singular, $plural, false, $hierarchical);
     }
