@@ -15,6 +15,12 @@ jobs:
       # https://github.com/marketplace/actions/checkout
       - uses: actions/checkout@v4
 
+      # https://github.com/marketplace/actions/setup-php-action
+      - name: Setup PHP and disable opcache
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
       - name: Validate composer.json and composer.lock
         run: composer validate
 
