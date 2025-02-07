@@ -43,9 +43,9 @@ class DataModel extends WP\DataModel
         /**
          * Rename built-in Posts, Tags and Categories
          */
-        WP\Rename::post('article', true, ['not_found' => 'Nope, no articles here.']);
-        WP\Rename::tag('colors');
-        WP\Rename::category('topic');
+        WP\Rename::post('article', 'articles', ['not_found' => 'Nope, no articles here.']);
+        WP\Rename::tag('color', 'colors');
+        WP\Rename::category('topic', 'topics');
 
         /**
          * Attach post_types to taxonomies

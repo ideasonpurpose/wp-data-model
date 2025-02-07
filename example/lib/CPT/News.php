@@ -19,7 +19,7 @@ class News extends WP\CPT
 
     public function define()
     {
-        $labels = WP\DataModel::postTypeLabels($this->type);
+        $labels = WP\DataModel\Labels::post_type($this->type);
 
         $this->args = [
             'label' => 'News',

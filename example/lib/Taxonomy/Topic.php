@@ -15,7 +15,7 @@ class Topic extends WP\Taxonomy
 
     public function define()
     {
-        $labels = WP\DataModel::taxonomyLabels('topic');
+        $labels = WP\DataModel\Labels::taxonomy('topic');
 
         $this->args = [
             'show_admin_column' => true,
