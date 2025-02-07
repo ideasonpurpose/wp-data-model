@@ -16,7 +16,7 @@ To start a new data-model plugin, copy the **example** directory. Create new CPT
 
 ### Create Custom Post Types and Taxonomies
 
-New Custom Post_Types are created as PHP classes which extend `IdeasOnPurpose\WP\CPT`, new Taxonomies extend `IdeasOnPurpose\WP\Taxonomy`. All new classes should include a `props` method which defines `$this->args`.
+New Custom Post*Types are created as PHP classes which extend `IdeasOnPurpose\WP\CPT`, new Taxonomies extend `IdeasOnPurpose\WP\Taxonomy`. New classes \_must include* a `props` method which defines `$this->args`.
 
 ### Taxonomy Maps and post_type assignment
 
@@ -33,45 +33,56 @@ $this->taxonomyMap = [
 
 ### Separators
 
-Call `new WP\Admin\Separators(22, 26)` with a list of indexes to insert separators into the menu. Matching indexes will insert the separator _after_ the CPT, so the following code will show **Events** with a separator directly below it:
+Call `new WP\Admin\Separators(22, 26)` with a list of indexes to insert separators into the menu. Matching indexes will insert the separator _after_ the CPT, so the following code will show **Articles** with a separator directly below it:
 
 ```php
-new CPT\Article(23);
 new WP\Admin\Separators(23);
+new CPT\Article(23);
 ```
 
 ### Admin CSS
 
-New Post_Types and Taxonomies can add specific CSS Rules to the WordPress admin by defining a `$css` property.
+New Post_Types and Taxonomies can add specific CSS Rules to the WordPress admin by defining a `$css` property. See the `styles` methods in the example files.
 
 ### Generating Labels
 
-A default set of labels can be generated from `WP\DataModel::postTypeLabels()` and `WP\DataModel::taxonomyLabels()`. These are often used to populate the `labels` value of the `$args` property when defining a new Post_Type or Taxonomy.
+A default set of labels can be generated from `WP\DataModel\Labels::post_type()` and `WP\DataModel\Labels::taxonomy()`. These should be used to populate the `labels` value of the `$args` property when defining a new Post_Type or Taxonomy.
 
 Arguments are:
 
-- **`$labelBase`** _String_
-  The base name of the label. This will be inflected and case-corrected to match WordPress defaults.
-- **`$inflect`** _[Boolean]_, default `true`<br>
-  A boolean switch to enable singular/plural inflection of `$labelBase`.
-- **`$overrides`** _[Array]_, default: `[]` <br>
-  An array of labels which will override the generated defaults [post_type](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-post-type.php#L962-L1002) and [taxonomy](https://github.com/WordPress/wordpress-develop/blob/84c21abf36dc2d8cb2b58c03e0e1f237c0a6b18d/src/wp-includes/class-wp-taxonomy.php#L612-L648) labels.
+- **`$singular`** _String_<br>
+  The singular basename of the label. Case will be normalized.
+- **`$plural`** _String_<br>
+  The plural basename of the label.
+- **`$hierarchical`** _Boolean_, default: `true` <br>
+  When true, labels will be created from Pages and Categories. When false, default labels will be created from Posts and Tags. (default [post_type labels](https://github.com/WordPress/wordpress-develop/blob/7d10dd7b0fde2a782395887c2d66439481440f9b/src/wp-includes/class-wp-post-type.php#L977-L1032), default [taxonomy labels](https://github.com/WordPress/wordpress-develop/blob/7d10dd7b0fde2a782395887c2d66439481440f9b/src/wp-includes/class-wp-taxonomy.php#L595-L651)).
 
-### WordPress Compatibility
+Any label overrides should be applied directly to the returned array:
 
-WordPress reports a `tested` value describing the latest version the plugin was developed and tested on. This value is auto-generated before the package.json **version** script runs. Tested values are collected from the [WordPress Stable-Check API](http://api.wordpress.org/core/stable-check/1.0) and stored in **assets/tested.json**.
+```php
+// Generate default labels
+$labels = WP\DataModel\Labels::taxonomy(__('audience', 'text_domain'), __('audiences', 'text_domain'));
+
+// Change "All Audiences" to "Every Audience"
+$labels['all_items'] = __('Every Audience', 'text_domain');
+```
 
 ### Renaming Built-in Post Types and Taxonomies
 
 Built-in post_types and taxonomies can be easily renamed. The DataModel object adds a static function to the WP namespace which can be called like this:
 
 ```php
-WP\Rename::post("topic"); // rename Posts to Topics
-WP\Rename::category("colors"); // Rename Categories to Colors
-WP\Rename::tag("flavors", ["popular_items" => "Most delicious flavors"]); // Rename Tags to Flavors with an override label
+// rename Posts to Topics: (capitalization is internally normalized)
+WP\Rename::post('Topic', 'topics');
+
+// Rename Categories to Colors with i18n translation:
+WP\Rename::category(__('color', 'text_domain'), __('colors', , 'text_domain'));
+
+// Rename Tags to Flavors with an override label:
+WP\Rename::tag('flavor', 'Flavors', ['popular_items' => 'Most delicious flavors']);
 ```
 
-DataModel will normalize singular and plural terms and capitalization to match WordPress best practices. For non-standard uses, supply override labels.
+DataModel will normalize capitalization to match WordPress best practices. For non-standard labels, apply overrides.
 
 `tag` is an alias for `post_tag`, both can be used.
 
@@ -83,11 +94,7 @@ Renaming via a static call was a deliberate choice. Unlike creating a new CPT or
 
 Calling `new CPT` or `new Taxonomy` makes sense because those commands _create_ something new. For renaming, the command acts on something which already exists, so the invocation syntax would be inconsistent with the performed action.
 
-The syntax for renaming can often be achieved in a single line whereas creating new CPTs or Taxonomies usually requires defining additional actions and filters.
-
-### Composer Updates
-
-The Docker Compose Composer service will mount and use local auth credentials if they exist in **~/.composer/auth.json**. If those credentials don't exist and Composer hits an API rate limit, pasting a token will create a new auth.json file in the mount which with persist on the host system.
+The syntax for renaming can often be achieved in a single line whereas creating new CPTs or Taxonomies requires defining additional actions and filters.
 
 ### Nav-Menu Visibility
 
@@ -109,6 +116,10 @@ The **aws** directory contains the lambda function which handles update requests
 
 Lambda function updates must be manually triggered by calling `npm run lambda:deploy`.
 
+### WordPress Compatibility
+
+WordPress reports a `tested` value describing the latest version the plugin was developed and tested on. This value is auto-generated before the package.json **version** script runs. Tested values are collected from the [WordPress Stable-Check API](http://api.wordpress.org/core/stable-check/1.0) and stored in **assets/tested.json**.
+
 ### Changelog, Description and Banners
 
 Assets should be stored in the project and be uploaded to a directory matching the plugin basename
@@ -122,6 +133,10 @@ The **README.md** and **CHANGELOG.md** files will be used to populate details in
 - AWS Credentials should be created from **IAM > Users > Security Credentials** for user **iop-cams**. Duplicate **.env.sample** and update the values in that file
 - AWS API-Gateway now references the lambda using `$LATEST` instead of a published version to make deploying updates simpler. The **Lambda Function** setting is found in the API Gateway Resource's POST - Integration Request options
 - Use this link to switch to the correct organization account role: [AWS Login](https://signin.aws.amazon.com/switchrole?roleName=OrganizationAccountAccessRole&account=iop003&displayName=IOP&color=B7CA9D)
+
+### Composer Updates
+
+The Docker Compose Composer service will mount and use local auth credentials if they exist in **~/.composer/auth.json**. If those credentials don't exist and Composer hits an API rate limit, pasting a token will create a new auth.json file in the mount which with persist on the host system.
 
 ### GitHub Actions
 
@@ -152,7 +167,9 @@ The [PHPUnit](https://phpunit.de/) test suite can be run from Docker or Herd. Do
 
 ## Default Post_Type and Taxonomy Labels
 
-Default labels can be extracted from WordPress by dumping the global `$wp_post_types[$type]->labels` and `$wp_taxonomies[$taxonomy]->labels` objects. WordPress defines labels as an Array, but stores them as an object. Posts and Pages overlap cleanly, Tags and Categories include special-cases for hierarchical display.
+Every available defalt label can be found in [`WP_Post_Type::get_default_labels`](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/class-wp-post-type.php#L977-L1032) or [`WP_Taxonomy::get_default_labels`](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/class-wp-taxonomy.php#L595-L651), where each value is an array with the hierarchical option first (Pages & Categories). Default labels can also be found by dumping the `$wp_post_types[$type]->labels` and `$wp_taxonomies[$taxonomy]->labels` objects.
+
+WordPress defines labels as an Array, then sometimes stores them as an Object, but always [casts back to an Array](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/taxonomy.php#L708) before applying them. Posts and Pages overlap cleanly, Tags and Categories include special-cases for hierarchical display.
 
 ```php
 // Default Page labels
