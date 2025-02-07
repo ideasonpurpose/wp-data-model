@@ -13,8 +13,12 @@ Test\Stubs::init();
 if (!function_exists(__NAMESPACE__ . '\error_log')) {
     function error_log($err)
     {
+        // global $error_log;
+        // $error_log = $err;
+
         global $error_log;
-        $error_log = $err;
+        $error_log = $error_log ?? [];
+        $error_log[] = $err;
     }
 }
 
@@ -28,7 +32,8 @@ final class PluginApiTest extends TestCase
     {
         global $flush_rewrite_rules, $error_log, $is_wp_error;
         $flush_rewrite_rules = null;
-        $error_log = '';
+        // $error_log = '';
+        $error_log = [];
         $is_wp_error = false;
 
         /** @var \IdeasOnPurpose\WP\CPT $this->Taxonomy */
@@ -250,72 +255,119 @@ final class PluginApiTest extends TestCase
 
     public function testPluginInfo()
     {
-        $this->Api->pluginInfo();
-        $this->assertObjectHasProperty('plugin_data', $this->Api);
-        $this->assertObjectHasProperty('plugin_id', $this->Api);
-        $this->assertObjectHasProperty('plugin_slug', $this->Api);
-        $this->assertObjectHasProperty('transient', $this->Api);
+        global $plugin_basename;
+        $reflection = new \ReflectionClass(Api::class);
+        $Api = $reflection->newInstanceWithoutConstructor();
+
+        $plugin_basename = 'fake-plugin_dir/main.php';
+        $Api->plugin = (object) ['__FILE__' => "fake/path/{$plugin_basename}"];
+
+        $Api->pluginInfo();
+        $this->assertIsArray($Api->plugin_data);
+        $this->assertObjectHasProperty('plugin_id', $Api);
+        $this->assertObjectHasProperty('plugin_slug', $Api);
+
+        $this->assertStringContainsString($Api->plugin_slug, $Api->plugin_id);
+        $this->assertStringContainsString($plugin_basename, $Api->transient);
     }
 
-    // NOTE: Disabled because updateCheck is mocked
-    // public function testUpdateCheck_transientExists_debugTrue()
-    // {
-    //     global $transients, $wp_remote_post, $error_log;
+    public function testUpdateCheck_transientExists_debugTrue()
+    {
+        global $get_transient, $transients, $set_transient, $error_log, $wp_remote_post;
 
-    //     $expected = 'Response for testing';
-    //     // $expected = (object) ['response' => ['key' => 'value']];
+        $ApiMock = $this->getMockBuilder(Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo'])
+            ->getMock();
 
-    //     // TODO: This transient prefix is too buried, refactor it up into the constructor
-    //     $transient_name = 'ideasonpurpose-update-check_mock-dir/plugin.php';
-    //     $transients[$transient_name] = $expected;
+        // TODO: This transient prefix is too buried, refactor it up into the constructor
+        $expected = 'Response for testing';
+        $transient_name = 'ideasonpurpose-update-check_mock-dir/plugin.php';
+        $get_transient[$transient_name] = $expected;
+        $ApiMock->transient = $transient_name;
 
-    //     $this->Api->is_debug = true;
-    //     $this->Api->updateCheck();
+        $ApiMock->is_debug = true;
+        $ApiMock->plugin_data = get_plugin_data();
 
-    //     // $this->assertFalse($this->Api->is_debug);
-    //     $this->assertArrayHasKey($transient_name, $transients);
-    //     // d($expected);
-    //     // $this->assertEquals($expected, $this->Api->response);
-    //     $this->assertStringContainsString('updateCheck', $error_log);
-    // }
+        $wp_remote_post = [
+            'body' => json_encode(['url' => '', 'args' => []]),
+            'response' => ['code' => 200],
+        ];
 
-    // NOTE: Disabled because updateCheck is mocked
-    // public function testUpdateCheck_transientExists_debugFalse()
-    // {
-    //     $this->Api->is_debug = false;
-    //     $this->Api->updateCheck();
+        $ApiMock->updateCheck();
+        $this->assertContains($transient_name, end($transients));
+    }
 
-    //     $this->assertIsObject($this->Api->response);
-    //     $this->assertObjectHasProperty('url', $this->Api->response);
-    //     $this->assertObjectHasProperty('args', $this->Api->response);
-    //     $this->assertArrayHasKey('headers', $this->Api->response->args);
-    // }
+    public function testUpdateCheck_transientExists_debugFalse()
+    {
+        global $get_transient;
 
-    // NOTE: Disabled because updateCheck is mocked
-    // public function testUpdateCheck_transientExists_wpError()
-    // {
-    //     global $wp_remote_post, $error_message, $error_log;
+        $ApiMock = $this->getMockBuilder(Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo'])
+            ->getMock();
 
-    //     $wp_remote_post = new \WP_Error();
-    //     $error_message = 'mock Error';
-    //     $this->Api->updateCheck();
+        $expected = 'Response for testing';
+        $transient_name = 'ideasonpurpose-update-check_mock-dir/plugin.php';
+        $get_transient[$transient_name] = $expected;
+        $ApiMock->transient = $transient_name;
 
-    //     $this->assertFalse($this->Api->response);
-    //     $this->assertStringContainsString('Something went wrong', $error_log);
-    // }
+        $ApiMock->is_debug = false;
+        $ApiMock->plugin_data = get_plugin_data();
+        $ApiMock->updateCheck();
 
-    // NOTE: Disabled because updateCheck is mocked
-    // public function testUpdateCheck_transientExists_responseCodeNot200()
-    // {
-    //     global $wp_remote_post, $error_log;
-    //     $wp_remote_post = false;
-    //     $wp_remote_post = wp_remote_post();
-    //     $wp_remote_post['response']['code'] = 418; // I'm a teapot 🫖
-    //     $wp_remote_post['body'] = "I'm a teapot";
+        $this->assertEquals($expected, $ApiMock->response);
+    }
 
-    //     $this->Api->updateCheck();
+    public function testUpdateCheck_transientExists_wpError()
+    {
+        global $wp_remote_post, $error_message, $error_log;
 
-    //     $this->assertFalse($this->Api->response);
-    //     $this->assertStringContainsString('Something went wrong', $error_log);
-    // }
+        $ApiMock = $this->getMockBuilder(Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo'])
+            ->getMock();
+
+        $expected = 'Response for testing';
+        $transient_name = 'ideasonpurpose-update-check_mock-dir/plugin.php';
+        $ApiMock->transient = $transient_name;
+
+        $ApiMock->is_debug = true;
+        $ApiMock->plugin_data = get_plugin_data();
+
+        $wp_remote_post = new \WP_Error();
+        $error_message = 'mock Error';
+        $ApiMock->updateCheck();
+
+        $this->assertFalse($ApiMock->response);
+        $this->assertStringContainsString('Something went wrong', implode("\n", $error_log));
+        // $this->assertContains('Something went wrong', $error_log);
+    }
+
+    public function testUpdateCheck_transientExists_responseCodeNot200()
+    {
+        global $wp_remote_post, $error_log;
+
+        $ApiMock = $this->getMockBuilder(Api::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['pluginInfo'])
+            ->getMock();
+
+        $expected = 'Response for testing';
+        $transient_name = 'ideasonpurpose-update-check_mock-dir/plugin.php';
+        $ApiMock->transient = $transient_name;
+
+        $ApiMock->is_debug = true;
+        $ApiMock->plugin_data = get_plugin_data();
+
+        $wp_remote_post = false;
+        $wp_remote_post = wp_remote_post();
+        $wp_remote_post['response']['code'] = 418; // I'm a teapot 🫖
+        $wp_remote_post['body'] = "I'm a teapot";
+
+        $ApiMock->updateCheck();
+
+        $this->assertFalse($ApiMock->response);
+        $this->assertStringContainsString('Something went wrong', implode("\n", $error_log));
+    }
 }
