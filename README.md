@@ -167,7 +167,7 @@ The [PHPUnit](https://phpunit.de/) test suite can be run from Docker or Herd. Do
 
 ## Default Post_Type and Taxonomy Labels
 
-Every available defalt label can be found in [`WP_Post_Type::get_default_labels`](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/class-wp-post-type.php#L977-L1032) or [`WP_Taxonomy::get_default_labels`](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/class-wp-taxonomy.php#L595-L651), where each value is an array with the hierarchical option first (Pages & Categories). Default labels can also be found by dumping the `$wp_post_types[$type]->labels` and `$wp_taxonomies[$taxonomy]->labels` objects.
+Every available default label can be found in [`WP_Post_Type::get_default_labels`](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/class-wp-post-type.php#L977-L1032) or [`WP_Taxonomy::get_default_labels`](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/class-wp-taxonomy.php#L595-L651), where each value is an array with the hierarchical option first (Pages & Categories). Default labels can also be found by dumping the `$wp_post_types[$type]->labels` and `$wp_taxonomies[$taxonomy]->labels` objects.
 
 WordPress defines labels as an Array, then sometimes stores them as an Object, but always [casts back to an Array](https://github.com/WordPress/wordpress-develop/blob/b5b4e3ada690e86ada210760f0300471d8d48a4e/src/wp-includes/taxonomy.php#L708) before applying them. Posts and Pages overlap cleanly, Tags and Categories include special-cases for hierarchical display.
 

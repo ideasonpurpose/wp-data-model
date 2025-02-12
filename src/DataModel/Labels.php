@@ -14,6 +14,15 @@ class Labels
      */
     public static function labels($singular, $plural, $is_post, $is_hierarchical = true)
     {
+        // TODO: Should support 'post_type" or "taxonomy" as well.
+        //          check for Boolean, then string match?
+        // It should accept the following: post_type, post, page, taxonomy, category, tag
+        // post, page, category, and tag should set $is_post and $is_hierarchical
+        if (in_array($is_post, ['post', 'page', 'category', 'tag', 'post_type', 'taxonomy'])) {
+            $is_hierarchical = in_array($is_post, ['page', 'category']);
+            $is_post = in_array($is_post, ['post', 'page', 'post_type']);
+        }
+
         $default_labels = $is_post
             ? \WP_Post_Type::get_default_labels()
             : \WP_Taxonomy::get_default_labels();
@@ -41,6 +50,8 @@ class Labels
      * A copy of updateLabels which requires a singular and plural label definition
      * so we can remove the inflector dependency.
      *
+     * Note: strtolower and ucwords have no effect on Japanese text
+     *
      * Note: WordPress is inconsistent about whether the labels property of the
      * register_taxonomy and register_post_type functions should be an object
      * or an array. But the value always gets cast to an array anyway, so just
@@ -54,6 +65,7 @@ class Labels
     public static function updateLabels($_singular, $_plural, $_labels)
     {
         $labels = (object) $_labels;
+
         $singularSrc = strtolower($labels->singular_name);
         $singularSrcTitleCase = ucwords($singularSrc);
         $pluralSrc = strtolower($labels->name);
@@ -65,11 +77,26 @@ class Labels
         $pluralTitleCase = ucwords($plural);
 
         $patterns = [
-            "/\b$singularSrc\b/",
-            "/\b$singularSrcTitleCase\b/",
-            "/\b$pluralSrc\b/",
-            "/\b$pluralSrcTitleCase\b/",
+            preg_quote($singularSrc, '/'),
+            preg_quote($singularSrcTitleCase, '/'),
+            preg_quote($pluralSrc, '/'),
+            preg_quote($pluralSrcTitleCase, '/'),
         ];
+
+        /**
+         * Check for Japanese characters
+         */
+        if (!preg_match('/[\p{Katakana}\p{Hiragana}\p{Han}]+/u', $labels->name)) {
+            /**
+             * Wrap non-japanese regex patterns in \b word boundary delimiters
+             */
+            $patterns = array_map(fn($p) => '\b' . $p . '\b', $patterns);
+        }
+        /**
+         * Wrap regex patterns in /.../u
+         */
+        $patterns = array_map(fn($p) => "/{$p}/u", $patterns);
+
         $replacements = [$singular, $singularTitleCase, $plural, $pluralTitleCase];
 
         $newLabels = new \stdClass();
