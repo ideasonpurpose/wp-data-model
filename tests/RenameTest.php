@@ -5,7 +5,6 @@ namespace IdeasOnPurpose\WP;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 use IdeasOnPurpose\WP\Test;
-use PHPUnit\Event\Test\MockObjectCreated;
 use ReflectionException;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\Exception;
@@ -129,7 +128,7 @@ final class RenameTest extends TestCase
 
         $renameMock->update('post', 'dog', 'dogs', ['override' => 'DOGS']);
         $this->assertEquals('Dogs', $wp_post_types['post']->label);
-        $this->assertArrayHasKey('override', $wp_post_types['post']->labels);
+        $this->assertObjectHasProperty('override', $wp_post_types['post']->labels);
     }
 
     public function testUpdateTaxonomy()
@@ -140,7 +139,7 @@ final class RenameTest extends TestCase
 
         $renameMock->update('post_tag', 'color', 'Colors', ['override' => 'red']);
         $this->assertEquals('Colors', $wp_taxonomies['post_tag']->label);
-        $this->assertArrayHasKey('override', $wp_taxonomies['post_tag']->labels);
+        $this->assertObjectHasProperty('override', $wp_taxonomies['post_tag']->labels);
     }
 
     public function testUpdateError()

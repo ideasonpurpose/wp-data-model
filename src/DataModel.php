@@ -2,8 +2,6 @@
 
 namespace IdeasOnPurpose\WP;
 
-// require __DIR__ . '/../vendor/autoload.php';
-
 use Doctrine\Inflector\InflectorFactory;
 use IdeasOnPurpose\WP\DataModel\Labels;
 
@@ -155,7 +153,7 @@ abstract class DataModel
         } else {
             $singular = $plural = $labelBase;
         }
-        return Labels::updateLabels($singular, $plural, (array) $labels);
+        return Labels::updateLabels($singular, $plural, $labels);
     }
 
     /**
@@ -199,8 +197,8 @@ abstract class DataModel
             $msg = "Data Model renaming failed: '{$object}' is not a known Post_type or Taxonomy.";
             return new Error($msg);
         }
-        $newLabels = Labels::labels($singular, $plural, $is_post);
-        return array_merge($newLabels, $overrides);
+        $newLabels = (array) Labels::labels($singular, $plural, $is_post);
+        return (object) array_merge($newLabels, $overrides);
     }
 
     /**
@@ -237,8 +235,8 @@ abstract class DataModel
         } else {
             $singular = $plural = $labelBase;
         }
-        $newLabels = Labels::post_type($singular, $plural);
-        return array_merge($newLabels, $overrides);
+        $newLabels = (array) Labels::post_type($singular, $plural);
+        return (object) array_merge($newLabels, $overrides);
     }
 
     /**
@@ -259,8 +257,8 @@ abstract class DataModel
         } else {
             $singular = $plural = $labelBase;
         }
-        $newLabels = Labels::taxonomy($singular, $plural);
-        return array_merge($newLabels, $overrides);
+        $newLabels = (array) Labels::taxonomy($singular, $plural);
+        return (object) array_merge($newLabels, $overrides);
     }
 
     public function getNavMenuNames()

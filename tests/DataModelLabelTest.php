@@ -45,12 +45,12 @@ final class DataModelLabelTest extends TestCase
     public function testUpdateLabels()
     {
         $actual = $this->DataModel->labels('word');
-        $this->assertEqualsIgnoringCase('word', $actual['singular_name']);
-        $this->assertEqualsIgnoringCase('Words', $actual['name']);
+        $this->assertEqualsIgnoringCase('word', $actual->singular_name);
+        $this->assertEqualsIgnoringCase('Words', $actual->name);
 
         $actual = $this->DataModel->labels('thing', false, [], 'category');
-        $this->assertEqualsIgnoringCase('thing', $actual['singular_name']);
-        $this->assertEqualsIgnoringCase('Thing', $actual['name']);
+        $this->assertEqualsIgnoringCase('thing', $actual->singular_name);
+        $this->assertEqualsIgnoringCase('Thing', $actual->name);
     }
 
     #[IgnoreDeprecations]
@@ -80,9 +80,9 @@ final class DataModelLabelTest extends TestCase
         $overrideLabel = 'The new page label';
 
         $actual = $this->DataModel->labels('thing', true, ['override' => $overrideLabel], 'page');
-        $this->assertEquals($actual['override'], $overrideLabel);
-        $this->assertStringContainsString('Things', $actual['name']);
-        $this->assertStringContainsString('Thing', $actual['singular_name']);
+        $this->assertEquals($actual->override, $overrideLabel);
+        $this->assertStringContainsString('Things', $actual->name);
+        $this->assertStringContainsString('Thing', $actual->singular_name);
     }
 
     #[IgnoreDeprecations]
@@ -93,36 +93,37 @@ final class DataModelLabelTest extends TestCase
         $labels = $this->DataModel->labels('thing');
 
         $actual = $this->DataModel->updateLabels('word', $labels, false);
-        $this->assertEqualsIgnoringCase('word', $actual['singular_name']);
-        $this->assertEqualsIgnoringCase('Word', $actual['name']);
+        $this->assertEqualsIgnoringCase('word', $actual->singular_name);
+        $this->assertEqualsIgnoringCase('Word', $actual->name);
     }
 
     #[IgnoreDeprecations]
     public function testPostTypeLabels()
     {
         $actual = $this->DataModel->postTypeLabels('dog');
-        $this->assertStringContainsString('Dogs', $actual['name']);
+        $this->assertStringContainsString('Dogs', $actual->name);
     }
 
     #[IgnoreDeprecations]
     public function testPostTypeLabels_old_noInflect()
     {
         $actual = $this->DataModel->postTypeLabels('bird', false);
-        $this->assertNotEqualsIgnoringCase('Birds', $actual['name']);
+        $this->assertNotEqualsIgnoringCase('Birds', $actual->name);
     }
 
     #[IgnoreDeprecations]
     public function testTaxonomyLabels()
     {
         $actual = $this->DataModel->taxonomyLabels('color');
-        $this->assertStringContainsString('Colors', $actual['name']);
+
+        $this->assertStringContainsString('Colors', $actual->name);
     }
 
     #[IgnoreDeprecations]
     public function testTaxonomyLabels_old_noInflect()
     {
         $actual = $this->DataModel->taxonomyLabels('color', false);
-        $this->assertNotEqualsIgnoringCase('Colors', $actual['name']);
+        $this->assertNotEqualsIgnoringCase('Colors', $actual->name);
     }
 
     /**
@@ -137,8 +138,8 @@ final class DataModelLabelTest extends TestCase
         $labels->singularTest = 'This is a frog';
         $labels->pluralTest = 'Look at all those Frogs';
         $actual = $this->DataModel->updateLabels('thing', $labels, true);
-        $this->assertStringContainsString('thing', $actual['singularTest']);
-        $this->assertStringContainsString('Things', $actual['pluralTest']);
+        $this->assertStringContainsString('thing', $actual->singularTest);
+        $this->assertStringContainsString('Things', $actual->pluralTest);
     }
 
     #[IgnoreDeprecations]
@@ -151,8 +152,8 @@ final class DataModelLabelTest extends TestCase
         $labels->pluralTest = 'Look at all those Frogs';
 
         $actual = $this->DataModel->updateLabelsDirect('chicken', 'Chickens', $labels);
-        $this->assertStringContainsString('chicken', $actual['singularTest']);
-        $this->assertStringContainsString('Chickens', $actual['pluralTest']);
-        $this->assertEquals('This is a chicken', $actual['singularTest']);
+        $this->assertStringContainsString('chicken', $actual->singularTest);
+        $this->assertStringContainsString('Chickens', $actual->pluralTest);
+        $this->assertEquals('This is a chicken', $actual->singularTest);
     }
 }

@@ -18,10 +18,10 @@ class Labels
             ? \WP_Post_Type::get_default_labels()
             : \WP_Taxonomy::get_default_labels();
 
-        $labels = [];
+        $labels = new \stdClass();
         foreach ($default_labels as $key => $value) {
             if ($value[intval($is_hierarchical)]) {
-                $labels[$key] = $value[intval($is_hierarchical)];
+                $labels->$key = $value[intval($is_hierarchical)];
             }
         }
 
@@ -44,11 +44,12 @@ class Labels
      * @param mixed $labels
      * @return array
      */
-    public static function updateLabels($_singular, $_plural, $labels)
+    public static function updateLabels($_singular, $_plural, $_labels)
     {
-        $singularSrc = strtolower($labels['singular_name']);
+        $labels = (object) $_labels;
+        $singularSrc = strtolower($labels->singular_name);
         $singularSrcTitleCase = ucwords($singularSrc);
-        $pluralSrc = strtolower($labels['name']);
+        $pluralSrc = strtolower($labels->name);
         $pluralSrcTitleCase = ucwords($pluralSrc);
 
         $singular = strtolower($_singular);
@@ -64,9 +65,10 @@ class Labels
         ];
         $replacements = [$singular, $singularTitleCase, $plural, $pluralTitleCase];
 
-        $newLabels = [];
+        $newLabels = new \stdClass();
+        $labels = (array) $labels;
         foreach ($labels as $key => $value) {
-            $newLabels[$key] = preg_replace($patterns, $replacements, $value);
+            $newLabels->$key = preg_replace($patterns, $replacements, $value);
         }
 
         return $newLabels;

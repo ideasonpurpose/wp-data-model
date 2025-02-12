@@ -93,18 +93,18 @@ class Rename
         if (array_key_exists($object, $wp_post_types)) {
             $hierarchical = $wp_post_types[$object]->hierarchical;
 
-            $labels = DataModel\Labels::post_type($singular, $plural, $hierarchical);
-            $labels = array_merge($labels, $overrides);
+            $labels = (array) DataModel\Labels::post_type($singular, $plural, $hierarchical);
+            $labels = (object) array_merge($labels, $overrides);
 
-            $wp_post_types[$object]->label = $labels['name'];
+            $wp_post_types[$object]->label = $labels->name;
             $wp_post_types[$object]->labels = $labels;
         } elseif (array_key_exists($object, $wp_taxonomies)) {
             $hierarchical = $wp_taxonomies[$object]->hierarchical;
 
-            $labels = DataModel\Labels::taxonomy($singular, $plural, $hierarchical);
-            $labels = array_merge($labels, $overrides);
+            $labels = (array) DataModel\Labels::taxonomy($singular, $plural, $hierarchical);
+            $labels = (object) array_merge($labels, $overrides);
 
-            $wp_taxonomies[$object]->label = $labels['name'];
+            $wp_taxonomies[$object]->label = $labels->name;
             $wp_taxonomies[$object]->labels = $labels;
         } else {
             new Error("'{$object}' is not a known Post_type or Taxonomy. Unable to rename.");

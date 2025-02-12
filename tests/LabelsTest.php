@@ -5,11 +5,7 @@ namespace IdeasOnPurpose\WP;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-// use Labels;
 use IdeasOnPurpose\WP\Test;
-// use PhpParser\Node\Stmt\Label;
-// use WP_Taxonomy;
-// use WP_Post_Type;
 
 Test\Stubs::init();
 
@@ -33,7 +29,7 @@ final class LabelsTest extends TestCase
             'toads' => 'sapos',
         ];
         $actual = DataModel\Labels::labels('toad', 'toads', true, false);
-        $this->assertArrayHasKey('name', $actual);
+        $this->assertObjectHasProperty('name', $actual);
     }
 
     public function testUpdateLabels()
@@ -47,19 +43,19 @@ final class LabelsTest extends TestCase
 
         $labels = DataModel\Labels::labels('toad', 'toads', true, false);
         $actual = DataModel\Labels::updateLabels(__('bird'), __('birds'), $labels);
-        $this->assertArrayHasKey('name', $actual);
-        $this->assertEqualsIgnoringCase(__('birds'), $actual['name']);
+        $this->assertObjectHasProperty('name', $actual);
+        $this->assertEqualsIgnoringCase(__('birds'), $actual->name);
     }
 
     public function testPostTypeLabels()
     {
         $actual = DataModel\Labels::post_type('dog', 'Dogs');
-        $this->assertEqualsIgnoringCase('dog', $actual['singular_name']);
+        $this->assertEqualsIgnoringCase('dog', $actual->singular_name);
     }
 
     public function testTaxonomyLabels()
     {
         $actual = DataModel\Labels::taxonomy('color', 'colors');
-        $this->assertEqualsIgnoringCase('Colors', $actual['name']);
+        $this->assertEqualsIgnoringCase('Colors', $actual->name);
     }
 }
