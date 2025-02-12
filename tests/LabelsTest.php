@@ -58,4 +58,18 @@ final class LabelsTest extends TestCase
         $actual = DataModel\Labels::taxonomy('color', 'colors');
         $this->assertEqualsIgnoringCase('Colors', $actual->name);
     }
+
+    public function testPostTypeLabelsHasMenuName()
+    {
+        $actual = DataModel\Labels::post_type('dog', 'Dogs');
+        $this->assertObjectHasProperty('menu_name', $actual);
+        $this->assertEqualsIgnoringCase('Dogs', $actual->menu_name);
+    }
+
+    public function testTaxonomyLabelsHasMenuName()
+    {
+        $actual = DataModel\Labels::taxonomy('color', 'colors');
+        $this->assertObjectHasProperty('menu_name', $actual);
+        $this->assertEqualsIgnoringCase('Colors', $actual->menu_name);
+    }
 }

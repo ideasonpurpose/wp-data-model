@@ -25,6 +25,13 @@ class Labels
             }
         }
 
+        /**
+         * The menu_name label is a special case which is added after default menus are retrieved
+         * @link https://github.com/WordPress/wordpress-develop/blob/ac2eeb9868d995f5632fcfdc40e8b36e22724ba7/src/wp-includes/post.php#L2102
+         * @link https://github.com/WordPress/wordpress-develop/blob/ac2eeb9868d995f5632fcfdc40e8b36e22724ba7/src/wp-includes/taxonomy.php#L720
+         */
+        $labels->menu_name = $labels->name;
+
         $newLabels = self::updateLabels($singular, $plural, $labels);
 
         return $newLabels;
