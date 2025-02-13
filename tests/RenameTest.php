@@ -14,8 +14,7 @@ Test\Stubs::init();
 if (!function_exists(__NAMESPACE__ . '\error_log')) {
     function error_log($err)
     {
-        global $error_log;
-        $error_log = $err;
+        Test\Stubs::error_log($err);
     }
 }
 
@@ -25,8 +24,7 @@ if (!function_exists(__NAMESPACE__ . '\error_log')) {
  */
 class RenameMock extends Rename
 {
-    //     public function update($object, $singular, $plural, $overrides = [])
-// {}
+    //     public function update($object, $singular, $plural, $overrides = []) {}
 }
 
 #[CoversClass(\IdeasOnPurpose\WP\Error::class)]
@@ -146,11 +144,12 @@ final class RenameTest extends TestCase
     {
         global $error_log;
 
+        $error_log = 'aaaa';
         $reflection = new \ReflectionClass(RenameMock::class);
         $renameMock = $reflection->newInstanceWithoutConstructor();
 
+        error_log('hi there');
         $renameMock->update('nope', 'a', 'b');
-
         $this->assertStringContainsString('nope', $error_log);
         $this->assertStringContainsString('Unable to rename.', $error_log);
     }

@@ -11,8 +11,7 @@ Test\Stubs::init();
 if (!function_exists(__NAMESPACE__ . '\error_log')) {
     function error_log($err)
     {
-        global $error_log;
-        $error_log = $err;
+        Test\Stubs::error_log($err);
     }
 }
 
@@ -22,7 +21,7 @@ final class ErrorTest extends TestCase
     public function testPrintError()
     {
         global $error_log;
-        $error_log = '';
+        $error_log = 'aaa';
         $msg = 'Test Error Message';
         $Error = new Error($msg);
         $Error->is_debug = true;

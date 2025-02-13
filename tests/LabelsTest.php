@@ -12,8 +12,7 @@ Test\Stubs::init();
 if (!function_exists(__NAMESPACE__ . '\error_log')) {
     function error_log($err)
     {
-        global $error_log;
-        $error_log = $err;
+        Test\Stubs::error_log($err);
     }
 }
 

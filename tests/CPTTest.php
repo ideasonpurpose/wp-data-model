@@ -8,14 +8,6 @@ use IdeasOnPurpose\WP\Test;
 
 Test\Stubs::init();
 
-if (!function_exists(__NAMESPACE__ . '\error_log')) {
-    function error_log($err)
-    {
-        global $error_log;
-        $error_log = $err;
-    }
-}
-
 /**
  * Empty class for mocking the abstract class
  */

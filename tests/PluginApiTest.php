@@ -13,12 +13,7 @@ Test\Stubs::init();
 if (!function_exists(__NAMESPACE__ . '\error_log')) {
     function error_log($err)
     {
-        // global $error_log;
-        // $error_log = $err;
-
-        global $error_log;
-        $error_log = $error_log ?? [];
-        $error_log[] = $err;
+        Test\Stubs::error_log($err);
     }
 }
 
@@ -33,7 +28,8 @@ final class PluginApiTest extends TestCase
         global $flush_rewrite_rules, $error_log, $is_wp_error;
         $flush_rewrite_rules = null;
         // $error_log = '';
-        $error_log = [];
+        // $error_log = [];
+        $error_log = '';
         $is_wp_error = false;
 
         /** @var \IdeasOnPurpose\WP\CPT $this->Taxonomy */
@@ -340,7 +336,7 @@ final class PluginApiTest extends TestCase
         $ApiMock->updateCheck();
 
         $this->assertFalse($ApiMock->response);
-        $this->assertStringContainsString('Something went wrong', implode("\n", $error_log));
+        $this->assertStringContainsString('Something went wrong', $error_log);
         // $this->assertContains('Something went wrong', $error_log);
     }
 
@@ -368,6 +364,6 @@ final class PluginApiTest extends TestCase
         $ApiMock->updateCheck();
 
         $this->assertFalse($ApiMock->response);
-        $this->assertStringContainsString('Something went wrong', implode("\n", $error_log));
+        $this->assertStringContainsString('Something went wrong', $error_log);
     }
 }

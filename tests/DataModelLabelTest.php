@@ -12,14 +12,6 @@ use WP_Post_Type;
 
 Test\Stubs::init();
 
-if (!function_exists(__NAMESPACE__ . '\error_log')) {
-    function error_log($err)
-    {
-        global $error_log;
-        $error_log = $err;
-    }
-}
-
 #[CoversClass(\IdeasOnPurpose\WP\DataModel::class)]
 #[CoversClass(\IdeasOnPurpose\WP\DataModel\Labels::class)]
 #[CoversClass(\IdeasOnPurpose\WP\Error::class)]

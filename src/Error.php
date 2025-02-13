@@ -30,6 +30,14 @@ class Error
         $this->msg = $msg;
         $this->trace = debug_backtrace();
         error_log($this->msg);
+        error_log(
+            sprintf(
+                'Error triggered in %s:%d [%s]',
+                $this->trace[1]['class'],
+                $this->trace[1]['line'],
+                basename($this->trace[1]['file'])
+            )
+        );
         add_action('wp_head', [$this, 'printInHead']);
     }
 
@@ -40,9 +48,10 @@ class Error
         }
 
         printf(
-            "\n\n<!-- Error triggered in %s:%d -->\n",
+            "\n\n<!-- Error triggered in %s:%d [%s] -->\n",
             $this->trace[1]['class'],
-            $this->trace[1]['line']
+            $this->trace[1]['line'],
+            basename($this->trace[1]['file'])
         );
         echo "<!-- {$this->msg} -->\n\n";
     }
