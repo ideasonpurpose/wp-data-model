@@ -2,25 +2,20 @@ name: PHPUnit Test Coverage
 
 on:
   push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-  workflow_dispatch:
+    branches: [main, master]
 
 jobs:
-  build:
-    # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-    runs-on: ubuntu-22.04
+  test:
+    runs-on: ubuntu-24.04
 
     steps:
       # https://github.com/marketplace/actions/checkout
       - uses: actions/checkout@v4
 
-      # https://github.com/marketplace/actions/setup-php-action
-      - name: Setup PHP and disable opcache
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
+      - name: Global install PHPUnit & update $PATH
+        run: |
+          composer global require phpunit/phpunit --prefer-dist
+          echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
 
       - name: Validate composer.json and composer.lock
         run: composer validate
@@ -28,28 +23,28 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --prefer-dist --no-progress --no-suggest
-          composer require phpunit/phpunit
 
       - name: Run test suite
         env:
           XDEBUG_MODE: coverage
-        run: vendor/bin/phpunit
+        run: phpunit
 
       # The Coveralls repo token is found on the project's Settings page
+      # https://github.com/php-coveralls/php-coveralls
       - name: Upload to Coveralls
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
           COVERALLS_RUN_LOCALLY: yes
         run: |
-          composer require 'php-coveralls/php-coveralls:2.5.2'
+          composer require 'php-coveralls/php-coveralls:2.7.0'
           vendor/bin/php-coveralls \
             --coverage_clover ./coverage.xml \
             --json_path ./coveralls-upload.json \
             --verbose
 
+      # https://github.com/codecov/codecov-action
       - name: Upload coverage to Codecov
-        # https://github.com/marketplace/actions/codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
           files: ./coverage.xml
@@ -58,9 +53,9 @@ jobs:
       # The Code Climate Test Coverage Reporter ID can be found by visiting the project's
       # Repo Settings pane, click Test Coverage in the left sidebar. Find the ID in the
       # second section.
+      # https://github.com/paambaati/codeclimate-action
       - name: Code Climate coverage
-        # https://github.com/marketplace/actions/code-climate-coverage-action
-        uses: paambaati/codeclimate-action@v5
+        uses: paambaati/codeclimate-action@v9.0
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:
